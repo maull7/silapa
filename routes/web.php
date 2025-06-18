@@ -1,7 +1,10 @@
 <?php
 
 use App\Exports\RequestExport;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -26,6 +29,56 @@ use App\Http\Controllers\MasterPenggunaController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::post('/telegram-webhook', function () {
+    $update = json_decode(file_get_contents('php://input'), true);
+
+    if (isset($update["message"]["text"]) && str_starts_with($update["message"]["text"], "/start")) {
+        $message = $update["message"]["text"];
+        $chatId = $update["message"]["chat"]["id"];
+        $parts = explode(" ", $message);
+        $userId = $parts[1] ?? null;
+
+        if ($userId) {
+            try {
+                $now = Carbon::now();
+
+                DB::table('tele_bot')->updateOrInsert(
+                    ['user_id' => $userId],
+                    [
+                        'chat_id' => $chatId,
+                        'updated_at' => $now,
+                        'created_at' => $now, // akan diabaikan jika sudah ada
+                    ]
+                );
+
+                // Kirim pesan sukses
+                Http::get("https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/sendMessage", [
+                    'chat_id' => $chatId,
+                    'text' => '✅ Akun kamu berhasil dihubungkan dengan sistem.'
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Gagal menyimpan data Telegram: ' . $e->getMessage());
+
+                Http::get("https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/sendMessage", [
+                    'chat_id' => $chatId,
+                    'text' => '❌ Gagal menghubungkan akun kamu. Silakan coba lagi nanti.'
+                ]);
+            }
+        } else {
+            // Jika user_id tidak dikirim atau kosong
+            Http::get("https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/sendMessage", [
+                'chat_id' => $chatId,
+                'text' => '⚠️ Perintah /start tidak valid. Format yang benar: /start <user_id>'
+            ]);
+        }
+    }
+
+    return response('OK');
+});
+
+
+
 
 
 // Route untuk login

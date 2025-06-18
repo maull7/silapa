@@ -1,0 +1,8 @@
+ngrok http --url=bursting-snake-adapted.ngrok-free.app 8000
+
+https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/setWebhook?url=https://bursting-snake-adapted.ngrok-free.app/telegram-webhook
+
+
+https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/getWebhookInfo
+
+https://api.telegram.org/bot7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY/deleteWebhook?drop_pending_updates=true

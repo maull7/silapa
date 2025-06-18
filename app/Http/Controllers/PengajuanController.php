@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use PDO;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use PDO;
+use Illuminate\Support\Facades\Http;
 
 class PengajuanController extends Controller
 {
@@ -62,15 +64,40 @@ class PengajuanController extends Controller
             'updated_at' => now(),
         ]);
 
-        DB::table('notif')->insert(
-            [
-                'id_request' => $id,
-                'id_user' => Auth::user()->id,
-                'desc' => 'Pengajuan dilakukan ' . Auth::user()->name,
-                'created_at' => now(),
+        if ($level == 1) {
+            $To = DB::table('map')->where('id_child', Auth::user()->id)->first();
+            DB::table('notif')->insert(
+                [
+                    'id_request' => $id,
+                    'id_user' => Auth::user()->id,
+                    'id_penerima' => $To->id_parent,
+                    'desc' => 'Pengajuan dilakukan ' . Auth::user()->name,
+                    'status' => 'unread',
+                    'created_at' => now(),
 
-            ]
-        );
+                ]
+            );
+        } else {
+            $roleTo = $level + 1;
+            $usersTo = DB::table('users')->where('role', $roleTo)->get();
+
+            foreach ($usersTo as $item) {
+                DB::table('notif')->insert(
+                    [
+                        'id_request' => $id,
+                        'id_user' => Auth::user()->id,
+                        'id_penerima' => $item->id,
+                        'desc' => 'Pengajuan dilakukan ' . Auth::user()->name,
+                        'status' => 'unread',
+                        'created_at' => now(),
+
+                    ]
+                );
+            }
+        }
+
+
+
 
 
 
@@ -217,6 +244,8 @@ class PengajuanController extends Controller
             return redirect()->back()->with('error', 'Data tidak ditemukan.');
         }
 
+        $approvals = DB::table('approvals')->where('request_id', $id)->get();
+
         $currentRole = Auth::user()->role;
         $komentar = $request->input('komentar'); // Ambil komentar dari form
 
@@ -228,14 +257,46 @@ class PengajuanController extends Controller
                 'keterangan' => 'Disetujui oleh ' . Auth::user()->name,
                 'updated_at' => now()
             ]);
+            if (!$approvals->isEmpty()) {
+                foreach ($approvals as $item) {
+                    DB::table('notif')->insert([
+                        'id_request' => $id,
+                        'id_user' => Auth::user()->id,
+                        'id_penerima' => $item->user_id, // pastikan ini user_id yg dimaksud
+                        'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
+                        'status' => 'unread',
+                        'created_at' => now(),
+                    ]);
+                }
+            } else {
+                DB::table('notif')->insert([
+                    'id_request' => $id,
+                    'id_user' => Auth::user()->id,
+                    'id_penerima' => $data->user_id, // pastikan $data sudah didefinisikan
+                    'desc' => 'Pengajuan Berhasil di setujui oleh ' . Auth::user()->name,
+                    'status' => 'unread',
+                    'created_at' => now(),
+                ]);
+            }
 
-            DB::table('notif')->insert([
-                'id_request' => $id,
-                'id_user' => Auth::user()->id,
-                'desc' => 'Pengajuan Telah Di Approve oleh ' . Auth::user()->name,
-                'created_at' => now(),
 
-            ]);
+            $level = Auth::user()->role;
+            $roleTo = $level + 1;
+            $usersTo = DB::table('users')->where('role', $roleTo)->get();
+
+            foreach ($usersTo as $item) {
+                DB::table('notif')->insert(
+                    [
+                        'id_request' => $id,
+                        'id_user' => Auth::user()->id,
+                        'id_penerima' => $item->id,
+                        'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
+                        'status' => 'unread',
+                        'created_at' => now(),
+
+                    ]
+                );
+            }
         } else {
             // Kalau sudah level terakhir (kepsek), tidak perlu naik level
             DB::table('request')->where('id', $id)->update([
@@ -244,14 +305,33 @@ class PengajuanController extends Controller
                 'keterangan' => 'Disetujui final oleh ' . Auth::user()->name,
                 'updated_at' => now()
             ]);
+            if ($approvals) {
+                foreach ($approvals as $item) {
+                    DB::table('notif')->insert(
+                        [
+                            'id_request' => $id,
+                            'id_user' => Auth::user()->id,
+                            'id_penerima' => $item->user_id,
+                            'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
+                            'status' => 'unread',
+                            'created_at' => now(),
 
-            DB::table('notif')->insert([
-                'id_request' => $id,
-                'id_user' => Auth::user()->id,
-                'desc' => 'Pengajuan Telah Di setujui final',
-                'created_at' => now(),
+                        ]
+                    );
+                }
+            }
 
-            ]);
+            DB::table('notif')->insert(
+                [
+                    'id_request' => $id,
+                    'id_user' => Auth::user()->id,
+                    'id_penerima' => $data->user_id,
+                    'desc' => 'Pengajuan Berhasil di setujui oleh' . Auth::user()->name,
+                    'status' => 'unread',
+                    'created_at' => now(),
+
+                ]
+            );
         }
 
         DB::table('approvals')->insert([
@@ -262,6 +342,18 @@ class PengajuanController extends Controller
             'approved_at' => now(),
             'created_at' => now()
         ]);
+        DB::table('notif')->insert(
+            [
+                'id_request' => $id,
+                'id_user' => Auth::user()->id,
+                'id_penerima' => $data->user_id,
+                'desc' =>  Auth::user()->name . 'Telah melakukan komentar ke pengajuan anda',
+                'status' => 'unread',
+                'created_at' => now(),
+
+            ]
+        );
+
 
         return redirect()->back()->with('success', 'Pengajuan berhasil disetujui.');
     }
@@ -283,6 +375,28 @@ class PengajuanController extends Controller
             'keterangan' => 'Ditolak oleh ' . Auth::user()->name,
             'updated_at' => now()
         ]);
+        $approvals = DB::table('approvals')->where('request_id', $id)->get();
+        if (!$approvals->isEmpty()) {
+            foreach ($approvals as $item) {
+                DB::table('notif')->insert([
+                    'id_request' => $id,
+                    'id_user' => Auth::user()->id,
+                    'id_penerima' => $item->user_id, // pastikan ini user_id yg dimaksud
+                    'desc' => 'Pengajuan Gagal di setujui Oleh ' . Auth::user()->name,
+                    'status' => 'unread',
+                    'created_at' => now(),
+                ]);
+            }
+        } else {
+            DB::table('notif')->insert([
+                'id_request' => $id,
+                'id_user' => Auth::user()->id,
+                'id_penerima' => $data->user_id, // pastikan $data sudah didefinisikan
+                'desc' => 'Pengajuan Gagal di setujui oleh ' . Auth::user()->name,
+                'status' => 'unread',
+                'created_at' => now(),
+            ]);
+        }
 
         DB::table('approvals')->insert([
             'request_id' => $id,
@@ -293,13 +407,8 @@ class PengajuanController extends Controller
             'created_at' => now()
         ]);
 
-        DB::table('notif')->insert([
-            'id_request' => $id,
-            'id_user' => Auth::user()->id,
-            'desc' => 'Pengajuan Telah Di Reject oleh ' . Auth::user()->name,
-            'created_at' => now(),
 
-        ]);
+
 
         return redirect()->back()->with('success', 'Pengajuan berhasil ditolak.');
     }
@@ -343,12 +452,17 @@ class PengajuanController extends Controller
             'created_at' => now()
         ]);
 
-        DB::table('notif')->insert([
-            'id_request' => $data->request_id,
-            'id_user' => Auth::user()->id,
-            'desc' => Auth::user()->name . 'Telah Menjawab Komentar',
-            'created_at' => now()
-        ]);
+        DB::table('notif')->insert(
+            [
+                'id_request' => $data->request_id,
+                'id_user' => Auth::user()->id,
+                'id_penerima' => $data->user_id,
+                'desc' =>  Auth::user()->name . ' Telah Melakukan Komentar',
+                'status' => 'unread',
+                'created_at' => now(),
+
+            ]
+        );
 
         return redirect()->back()->with('success', 'Membalas komentar !!');
     }
@@ -363,19 +477,58 @@ class PengajuanController extends Controller
 
         DB::table('reply')->insert([
             'approvals_id' => $id,
-            'user_id' => $request->user_id,
-            'parent_id' => Auth::user()->id,
+            'user_id' => Auth::user()->id,
+            'parent_id' => $request->user_id,
             'komentar' => $request->komentar,
             'created_at' => now()
         ]);
+        if (!$data->user_id == Auth::user()->id) {
 
-        DB::table('notif')->insert([
-            'id_request' => $data->request_id,
-            'id_user' => Auth::user()->id,
-            'desc' => Auth::user()->name . 'Telah Menjawab Komentar',
-            'created_at' => now()
-        ]);
+            DB::table('notif')->insert(
+                [
+                    'id_request' => $data->request_id,
+                    'id_user' => Auth::user()->id,
+                    'id_penerima' => $data->user_id,
+                    'desc' =>  Auth::user()->name . ' Telah Membalas Komentar Anda',
+                    'status' => 'unread',
+                    'created_at' => now(),
+
+                ]
+            );
+        }
+
 
         return redirect()->back()->with('success', 'Membalas komentar !!');
+    }
+
+    function sendTelegram($message)
+    {
+        $bots = DB::table('tele_bot')->get();
+
+        $token = '7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY';
+        $url = "https://api.telegram.org/bot$token/sendMessage";
+
+        $allSuccess = true;
+
+        if ($bots->isEmpty()) {
+            // Tidak ada user chat_id
+            return false;
+        }
+
+        foreach ($bots as $bot) {
+            $response = Http::get($url, [
+                'chat_id' => $bot->chat_id,
+                'text' => $message,
+                'parse_mode' => 'HTML',
+            ]);
+
+            if (!$response->successful()) {
+                Log::error("Gagal kirim pesan ke chat_id {$bot->chat_id}");
+                $allSuccess = false;
+                // Kalau mau berhenti langsung saat gagal bisa pakai break;
+            }
+        }
+
+        return $allSuccess;
     }
 }

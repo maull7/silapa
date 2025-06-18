@@ -181,7 +181,7 @@
                                                         @php
                                                             $replies = DB::table('reply')
                                                                 ->where('approvals_id', $appr->id_approvals)
-                                                                ->orderBy('created_at', 'asc')
+                                                                ->orderBy('id_reply', 'asc')
                                                                 ->get();
                                                         @endphp
 
@@ -194,6 +194,7 @@
                                                                                 $replier = DB::table('users')
                                                                                     ->where('id', $reply->user_id)
                                                                                     ->first();
+
                                                                             @endphp
                                                                             {{ $replier->name ?? 'Unknown User' }}
 
@@ -203,21 +204,33 @@
                                                                                         'reply',
                                                                                     )
                                                                                         ->join(
-                                                                                            'users',
-                                                                                            'users.id',
+                                                                                            'users as u1',
+                                                                                            'u1.id',
                                                                                             '=',
                                                                                             'reply.user_id',
-                                                                                        )
+                                                                                        ) // user yang membuat reply
+                                                                                        ->join(
+                                                                                            'users as u2',
+                                                                                            'u2.id',
+                                                                                            '=',
+                                                                                            'reply.parent_id',
+                                                                                        ) // user yang dikomentari
                                                                                         ->where(
                                                                                             'reply.id_reply',
-                                                                                            $reply->parent_id,
+                                                                                            $reply->id_reply,
                                                                                         )
+                                                                                        ->select(
+                                                                                            'reply.*',
+                                                                                            'u1.name as original_name',
+                                                                                            'u2.name as replier_name',
+                                                                                        ) // ambil kolom sesuai kebutuhan
                                                                                         ->first();
                                                                                 @endphp
+
                                                                                 <span class="text-muted font-weight-normal">
                                                                                     membalas
                                                                                     <span
-                                                                                        class="font-italic">{{ $originalCommenter->name ?? 'Pengguna' }}</span>
+                                                                                        class="font-italic">{{ $originalCommenter->replier_name ?? 'Pengguna' }}</span>
                                                                                 </span>
                                                                             @endif
                                                                         </strong>
@@ -244,9 +257,9 @@
                                                                         method="POST">
                                                                         @csrf
                                                                         <input type="hidden" name="parent_id"
-                                                                            value="{{ $reply->id_reply }}">
+                                                                            value="{{ $reply->user_id }}">
                                                                         <input type="hidden" name="user_id"
-                                                                            value="{{ auth()->id() }}">
+                                                                            value="{{ $reply->user_id }}">
                                                                         <div class="input-group input-group-sm">
                                                                             <input type="text" name="komentar"
                                                                                 class="form-control"

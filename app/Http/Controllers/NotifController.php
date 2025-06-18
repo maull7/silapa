@@ -14,21 +14,15 @@ class NotifController extends Controller
         $userId = Auth::user()->id;
 
         // Ambil semua notif user yang belum dibaca
-        $unreadNotifs = DB::table('notif')
-            ->whereNotIn('id', function ($query) use ($userId) {
-                $query->select('id_notif')
-                    ->from('status_notif')
-                    ->where('id_user', $userId);
-            })
-            ->get();
+        $unreadNotifs = DB::table('notif')->where('id_penerima', $userId)->where('status', 'unread')->get();
 
         // Masukkan ke tabel status_notif
         foreach ($unreadNotifs as $notif) {
-            DB::table('status_notif')->insert([
-                'id_notif' => $notif->id,
-                'id_user' => $userId,
+            DB::table('notif')->where('id_penerima', $userId)->update([
+
                 'status' => 'read',
                 'created_at' => now(),
+
             ]);
         }
 

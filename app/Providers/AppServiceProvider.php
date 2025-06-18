@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,17 +28,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        // if (config('app.env') === 'local') {
+        //     URL::forceScheme('https');
+        // }
         View::composer('*', function ($view) {
             if (auth()->check()) {
                 $notifs = DB::table('notif')
-                    ->whereNot('id_user', Auth::id()) // notif untuk user ini
-                    ->whereNotIn('id', function ($query) {
-                        $query->select('id_notif')
-                            ->from('status_notif')
-                            ->where('id_user', Auth::id());
-                    })
-                    ->orderByDesc('created_at')
-                    ->limit(5)
+                    ->where('id_penerima', Auth::user()->id)
+                    ->where('status', 'unread')
                     ->get();
 
                 $notifCount = $notifs->count();
