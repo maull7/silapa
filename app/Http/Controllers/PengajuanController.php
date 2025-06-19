@@ -48,11 +48,11 @@ class PengajuanController extends Controller
             $file->move($destinationPath, $fileName);
         }
 
-        // Mapping role → level
-        $level = Auth::user()->role;
+        $user = Auth::user();
+        $level = $user->role;
 
-        $id = DB::table('request')->insertGetId([
-            'user_id' => auth()->id(),
+        $idRequest = DB::table('request')->insertGetId([
+            'user_id' => $user->id,
             'title' => $request->title,
             'desc' => $request->desc,
             'bukti' => $fileName,
@@ -64,45 +64,56 @@ class PengajuanController extends Controller
             'updated_at' => now(),
         ]);
 
+        $notifDesc = 'Pengajuan dilakukan ' . $user->name;
+        $message = $user->name . ' Telah Melakukan Pengajuan';
+
+        $notifData = [];
+        $targetUserIds = [];
+
         if ($level == 1) {
-            $To = DB::table('map')->where('id_child', Auth::user()->id)->first();
-            DB::table('notif')->insert(
-                [
-                    'id_request' => $id,
-                    'id_user' => Auth::user()->id,
-                    'id_penerima' => $To->id_parent,
-                    'desc' => 'Pengajuan dilakukan ' . Auth::user()->name,
+            $to = DB::table('map')->where('id_child', $user->id)->first();
+
+            if ($to) {
+                $notifData[] = [
+                    'id_request' => $idRequest,
+                    'id_user' => $user->id,
+                    'id_penerima' => $to->id_parent,
+                    'desc' => $notifDesc,
                     'status' => 'unread',
                     'created_at' => now(),
-
-                ]
-            );
+                ];
+                $targetUserIds[] = $to->id_parent;
+            }
         } else {
-            $roleTo = $level + 1;
-            $usersTo = DB::table('users')->where('role', $roleTo)->get();
+            $nextRole = $level + 1;
+            $usersTo = DB::table('users')->where('role', $nextRole)->get();
 
-            foreach ($usersTo as $item) {
-                DB::table('notif')->insert(
-                    [
-                        'id_request' => $id,
-                        'id_user' => Auth::user()->id,
-                        'id_penerima' => $item->id,
-                        'desc' => 'Pengajuan dilakukan ' . Auth::user()->name,
-                        'status' => 'unread',
-                        'created_at' => now(),
-
-                    ]
-                );
+            foreach ($usersTo as $u) {
+                $notifData[] = [
+                    'id_request' => $idRequest,
+                    'id_user' => $user->id,
+                    'id_penerima' => $u->id,
+                    'desc' => $notifDesc,
+                    'status' => 'unread',
+                    'created_at' => now(),
+                ];
+                $targetUserIds[] = $u->id;
             }
         }
 
+        // Insert semua notifikasi sekaligus
+        if (!empty($notifData)) {
+            DB::table('notif')->insert($notifData);
+        }
 
-
-
-
+        // Kirim Telegram sekali untuk semua target
+        if (!empty($targetUserIds)) {
+            $this->sendTelegram($message, $targetUserIds);
+        }
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil disimpan.');
     }
+
 
     public function edit($id)
     {
@@ -180,23 +191,18 @@ class PengajuanController extends Controller
         $userId = Auth::user()->id;
 
         // Ambil semua notif user yang belum dibaca
-        $unreadNotifs = DB::table('notif')
-            ->whereNotIn('id', function ($query) use ($userId) {
-                $query->select('id_notif')
-                    ->from('status_notif')
-                    ->where('id_user', $userId);
-            })
-            ->get();
+        $unreadNotifs = DB::table('notif')->where('id_penerima', $userId)->where('status', 'unread')->get();
 
         // Masukkan ke tabel status_notif
         foreach ($unreadNotifs as $notif) {
-            DB::table('status_notif')->insert([
-                'id_notif' => $notif->id,
-                'id_user' => $userId,
+            DB::table('notif')->where('id_penerima', $userId)->update([
+
                 'status' => 'read',
                 'created_at' => now(),
+
             ]);
         }
+
 
         $role = Auth::user()->role;
         $level = $role - 1;
@@ -245,118 +251,98 @@ class PengajuanController extends Controller
         }
 
         $approvals = DB::table('approvals')->where('request_id', $id)->get();
+        $currentUser = Auth::user();
+        $currentRole = $currentUser->role;
+        $komentar = $request->input('komentar');
 
-        $currentRole = Auth::user()->role;
-        $komentar = $request->input('komentar'); // Ambil komentar dari form
+        // Update status request
+        $updateData = [
+            'status' => 'approve',
+            'level' => $currentRole >= 4 ? 4 : $currentRole,
+            'keterangan' => ($currentRole >= 4 ? 'Disetujui final oleh ' : 'Disetujui oleh ') . $currentUser->name,
+            'updated_at' => now()
+        ];
+        DB::table('request')->where('id', $id)->update($updateData);
 
-        // Naikkan level kalau masih di bawah 4
-        if ($currentRole < 4) {
-            DB::table('request')->where('id', $id)->update([
-                'level' => $currentRole,
-                'status' => 'approve',
-                'keterangan' => 'Disetujui oleh ' . Auth::user()->name,
-                'updated_at' => now()
-            ]);
-            if (!$approvals->isEmpty()) {
-                foreach ($approvals as $item) {
-                    DB::table('notif')->insert([
-                        'id_request' => $id,
-                        'id_user' => Auth::user()->id,
-                        'id_penerima' => $item->user_id, // pastikan ini user_id yg dimaksud
-                        'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
-                        'status' => 'unread',
-                        'created_at' => now(),
-                    ]);
-                }
-            } else {
-                DB::table('notif')->insert([
-                    'id_request' => $id,
-                    'id_user' => Auth::user()->id,
-                    'id_penerima' => $data->user_id, // pastikan $data sudah didefinisikan
-                    'desc' => 'Pengajuan Berhasil di setujui oleh ' . Auth::user()->name,
-                    'status' => 'unread',
-                    'created_at' => now(),
-                ]);
-            }
+        // Siapkan notifikasi
+        $notifDesc = 'Pengajuan disetujui oleh ' . $currentUser->name;
+        $message = $notifDesc;
+        $notifData = [];
+        $teleUserIds = [];
 
-
-            $level = Auth::user()->role;
-            $roleTo = $level + 1;
-            $usersTo = DB::table('users')->where('role', $roleTo)->get();
-
-            foreach ($usersTo as $item) {
-                DB::table('notif')->insert(
-                    [
-                        'id_request' => $id,
-                        'id_user' => Auth::user()->id,
-                        'id_penerima' => $item->id,
-                        'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
-                        'status' => 'unread',
-                        'created_at' => now(),
-
-                    ]
-                );
-            }
-        } else {
-            // Kalau sudah level terakhir (kepsek), tidak perlu naik level
-            DB::table('request')->where('id', $id)->update([
-                'status' => 'approve',
-                'level' => 4,
-                'keterangan' => 'Disetujui final oleh ' . Auth::user()->name,
-                'updated_at' => now()
-            ]);
-            if ($approvals) {
-                foreach ($approvals as $item) {
-                    DB::table('notif')->insert(
-                        [
-                            'id_request' => $id,
-                            'id_user' => Auth::user()->id,
-                            'id_penerima' => $item->user_id,
-                            'desc' => 'Pengajuan Berhasil di setujui Oleh ' . Auth::user()->name,
-                            'status' => 'unread',
-                            'created_at' => now(),
-
-                        ]
-                    );
-                }
-            }
-
-            DB::table('notif')->insert(
-                [
-                    'id_request' => $id,
-                    'id_user' => Auth::user()->id,
-                    'id_penerima' => $data->user_id,
-                    'desc' => 'Pengajuan Berhasil di setujui oleh' . Auth::user()->name,
-                    'status' => 'unread',
-                    'created_at' => now(),
-
-                ]
-            );
+        // Tambahkan notifikasi ke semua approvals sebelumnya
+        foreach ($approvals as $item) {
+            $notifData[] = [
+                'id_request' => $id,
+                'id_user' => $currentUser->id,
+                'id_penerima' => $item->user_id,
+                'desc' => $notifDesc,
+                'status' => 'unread',
+                'created_at' => now(),
+            ];
+            $teleUserIds[] = $item->user_id;
         }
 
+        // Notif ke pemilik request
+        $notifData[] = [
+            'id_request' => $id,
+            'id_user' => $currentUser->id,
+            'id_penerima' => $data->user_id,
+            'desc' => $notifDesc,
+            'status' => 'unread',
+            'created_at' => now(),
+        ];
+        $teleUserIds[] = $data->user_id;
+
+        // Kirim ke user level selanjutnya (jika belum level 4)
+        if ($currentRole < 4) {
+            $nextRoleUsers = DB::table('users')->where('role', $currentRole + 1)->get();
+
+            foreach ($nextRoleUsers as $user) {
+                $notifData[] = [
+                    'id_request' => $id,
+                    'id_user' => $currentUser->id,
+                    'id_penerima' => $user->id,
+                    'desc' => $notifDesc,
+                    'status' => 'unread',
+                    'created_at' => now(),
+                ];
+                $teleUserIds[] = $user->id;
+            }
+        }
+
+        // Insert notifikasi sekaligus
+        DB::table('notif')->insert($notifData);
+
+        // Kirim Telegram
+        $this->sendTelegram($message, array_unique($teleUserIds));
+
+        // Simpan approval komentar
         DB::table('approvals')->insert([
             'request_id' => $id,
-            'user_id' => auth()->id(),
+            'user_id' => $currentUser->id,
             'status' => 'approve',
             'komentar' => $komentar,
             'approved_at' => now(),
             'created_at' => now()
         ]);
-        DB::table('notif')->insert(
-            [
-                'id_request' => $id,
-                'id_user' => Auth::user()->id,
-                'id_penerima' => $data->user_id,
-                'desc' =>  Auth::user()->name . 'Telah melakukan komentar ke pengajuan anda',
-                'status' => 'unread',
-                'created_at' => now(),
 
-            ]
-        );
+        // Kirim notifikasi komentar ke pemilik
+        DB::table('notif')->insert([
+            'id_request' => $id,
+            'id_user' => $currentUser->id,
+            'id_penerima' => $data->user_id,
+            'desc' => $currentUser->name . ' telah mengomentari pengajuan Anda',
+            'status' => 'unread',
+            'created_at' => now(),
+        ]);
 
+        // (Opsional) kirim telegram untuk komentar juga
+        $this->sendTelegram($currentUser->name . ' telah mengomentari pengajuan Anda', $data->user_id);
 
         return redirect()->back()->with('success', 'Pengajuan berhasil disetujui.');
     }
+
 
     public function reject(Request $request, $id)
     {
@@ -366,52 +352,69 @@ class PengajuanController extends Controller
             return redirect()->back()->with('error', 'Data tidak ditemukan.');
         }
 
-        $currentRole = Auth::user()->role;
-        $komentar = $request->input('komentar'); // Ambil komentar dari form
+        $currentUser = Auth::user();
+        $currentRole = $currentUser->role;
+        $komentar = $request->input('komentar');
 
+        // Update status request menjadi ditolak
         DB::table('request')->where('id', $id)->update([
             'level' => $currentRole,
             'status' => 'rejected',
-            'keterangan' => 'Ditolak oleh ' . Auth::user()->name,
+            'keterangan' => 'Ditolak oleh ' . $currentUser->name,
             'updated_at' => now()
         ]);
+
         $approvals = DB::table('approvals')->where('request_id', $id)->get();
+        $notifData = [];
+        $teleUserIds = [];
+
+        $notifDesc = 'Pengajuan ditolak oleh ' . $currentUser->name;
+        $message = $notifDesc;
+
         if (!$approvals->isEmpty()) {
             foreach ($approvals as $item) {
-                DB::table('notif')->insert([
+                $notifData[] = [
                     'id_request' => $id,
-                    'id_user' => Auth::user()->id,
-                    'id_penerima' => $item->user_id, // pastikan ini user_id yg dimaksud
-                    'desc' => 'Pengajuan Gagal di setujui Oleh ' . Auth::user()->name,
+                    'id_user' => $currentUser->id,
+                    'id_penerima' => $item->user_id,
+                    'desc' => $notifDesc,
                     'status' => 'unread',
                     'created_at' => now(),
-                ]);
+                ];
+                $teleUserIds[] = $item->user_id;
             }
-        } else {
-            DB::table('notif')->insert([
-                'id_request' => $id,
-                'id_user' => Auth::user()->id,
-                'id_penerima' => $data->user_id, // pastikan $data sudah didefinisikan
-                'desc' => 'Pengajuan Gagal di setujui oleh ' . Auth::user()->name,
-                'status' => 'unread',
-                'created_at' => now(),
-            ]);
         }
 
+        // Tambah notifikasi ke pemilik request
+        $notifData[] = [
+            'id_request' => $id,
+            'id_user' => $currentUser->id,
+            'id_penerima' => $data->user_id,
+            'desc' => $notifDesc,
+            'status' => 'unread',
+            'created_at' => now(),
+        ];
+        $teleUserIds[] = $data->user_id;
+
+        // Insert notifikasi sekaligus
+        DB::table('notif')->insert($notifData);
+
+        // Kirim Telegram ke semua pihak
+        $this->sendTelegram($message, array_unique($teleUserIds));
+
+        // Simpan approval tolak + komentar
         DB::table('approvals')->insert([
             'request_id' => $id,
-            'user_id' => auth()->id(),
+            'user_id' => $currentUser->id,
             'status' => 'rejected',
             'komentar' => $komentar,
             'approved_at' => now(),
             'created_at' => now()
         ]);
 
-
-
-
         return redirect()->back()->with('success', 'Pengajuan berhasil ditolak.');
     }
+
 
 
     public function success()
@@ -443,77 +446,79 @@ class PengajuanController extends Controller
 
         $data = DB::table('approvals')->where('id_approvals', $id)->first();
 
-
         DB::table('reply')->insert([
             'approvals_id' => $id,
-            'user_id' => Auth::user()->id,
-            'parent_id' => null,
+            'user_id' => Auth::id(),
+            'parent_id' => $data->user_id,
             'komentar' => $request->komentar,
             'created_at' => now()
         ]);
 
-        DB::table('notif')->insert(
-            [
-                'id_request' => $data->request_id,
-                'id_user' => Auth::user()->id,
-                'id_penerima' => $data->user_id,
-                'desc' =>  Auth::user()->name . ' Telah Melakukan Komentar',
-                'status' => 'unread',
-                'created_at' => now(),
+        DB::table('notif')->insert([
+            'id_request' => $data->request_id,
+            'id_user' => Auth::id(),
+            'id_penerima' => $data->user_id,
+            'desc' => Auth::user()->name . ' telah mengomentari pengajuan Anda',
+            'status' => 'unread',
+            'created_at' => now(),
+        ]);
 
-            ]
-        );
+        $this->sendTelegram(Auth::user()->name . ' telah mengomentari pengajuan Anda', $data->user_id);
 
-        return redirect()->back()->with('success', 'Membalas komentar !!');
+        return redirect()->back()->with('success', 'Komentar berhasil dikirim.');
     }
+
     public function replyComment(Request $request, $id)
     {
         $request->validate([
             'komentar' => 'required|string|max:500',
+            'parent_id' => 'required|integer' // ini ID reply yang dibalas
         ]);
 
         $data = DB::table('approvals')->where('id_approvals', $id)->first();
 
-
         DB::table('reply')->insert([
             'approvals_id' => $id,
-            'user_id' => Auth::user()->id,
-            'parent_id' => $request->user_id,
+            'user_id' => Auth::id(),
+            'parent_id' => $request->parent_id,
             'komentar' => $request->komentar,
             'created_at' => now()
         ]);
-        if (!$data->user_id == Auth::user()->id) {
 
-            DB::table('notif')->insert(
-                [
-                    'id_request' => $data->request_id,
-                    'id_user' => Auth::user()->id,
-                    'id_penerima' => $data->user_id,
-                    'desc' =>  Auth::user()->name . ' Telah Membalas Komentar Anda',
-                    'status' => 'unread',
-                    'created_at' => now(),
+        // Kirim notif & telegram ke pemilik approval kalau bukan diri sendiri
+        if ($request->parent_id != Auth::id()) {
+            DB::table('notif')->insert([
+                'id_request' => $data->request_id,
+                'id_user' => Auth::id(),
+                'id_penerima' => $request->parent_id,
+                'desc' => Auth::user()->name . ' telah membalas komentar Anda',
+                'status' => 'unread',
+                'created_at' => now(),
+            ]);
 
-                ]
-            );
+            $this->sendTelegram(Auth::user()->name . ' telah membalas komentar Anda', $request->parent_id);
         }
 
-
-        return redirect()->back()->with('success', 'Membalas komentar !!');
+        return redirect()->back()->with('success', 'Balasan komentar berhasil dikirim.');
     }
 
-    function sendTelegram($message)
-    {
-        $bots = DB::table('tele_bot')->get();
 
-        $token = '7640539385:AAHE-qfya2zuBgfgSBJ4MXf15Nf3EgRiyDY';
+    public function sendTelegram($message, $userIds)
+    {
+        if (!is_array($userIds)) {
+            $userIds = [$userIds]; // biar fleksibel, bisa kirim 1 atau banyak
+        }
+
+        $bots = DB::table('tele_bot')
+            ->whereIn('user_id', $userIds)
+            ->select('chat_id')
+            ->distinct()
+            ->get();
+
+        $token = env('TELEGRAM_BOT_TOKEN');
         $url = "https://api.telegram.org/bot$token/sendMessage";
 
         $allSuccess = true;
-
-        if ($bots->isEmpty()) {
-            // Tidak ada user chat_id
-            return false;
-        }
 
         foreach ($bots as $bot) {
             $response = Http::get($url, [
@@ -523,9 +528,8 @@ class PengajuanController extends Controller
             ]);
 
             if (!$response->successful()) {
-                Log::error("Gagal kirim pesan ke chat_id {$bot->chat_id}");
+                Log::error("Gagal kirim pesan ke chat_id {$bot->chat_id}: " . $response->body());
                 $allSuccess = false;
-                // Kalau mau berhenti langsung saat gagal bisa pakai break;
             }
         }
 

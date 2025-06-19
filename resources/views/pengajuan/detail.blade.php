@@ -259,7 +259,7 @@
                                                                         <input type="hidden" name="parent_id"
                                                                             value="{{ $reply->user_id }}">
                                                                         <input type="hidden" name="user_id"
-                                                                            value="{{ $reply->user_id }}">
+                                                                            value="{{ $reply->parent_id }}">
                                                                         <div class="input-group input-group-sm">
                                                                             <input type="text" name="komentar"
                                                                                 class="form-control"

@@ -507,6 +507,18 @@
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <!-- Notifikasi -->
+            @php
+                $hasTelegram = DB::table('tele_bot')->where('user_id', Auth::id())->exists();
+            @endphp
+
+            <li class="nav-item">
+                <a class="nav-link {{ $hasTelegram ? 'text-primary' : 'text-muted' }}"
+                    href="https://t.me/SilapaBot?start={{ Auth::id() }}" target="_blank"
+                    title="{{ $hasTelegram ? 'Telegram sudah terhubung' : 'Klik untuk hubungkan Telegram' }}">
+                    <i class="fab fa-telegram fa-lg"></i>
+                </a>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link position-relative text-danger" data-toggle="dropdown" href="#"
                     aria-expanded="false">
