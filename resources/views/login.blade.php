@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | Sebasa - International Policing</title>
+    <title>Login | SILAPA - Sistem Layanan Pencairan Anggaran</title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ url('img/favicon.png') }}" type="image/png">
@@ -320,9 +320,7 @@
                 height: 80px;
             }
 
-            .logo-container img {
-                width: 60px;
-            }
+
         }
     </style>
 </head>

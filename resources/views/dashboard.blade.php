@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistem Layanan Pencairan Anggaran</title>
+    <title>SILAPA - Sistem Layanan Pencairan Anggaran</title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ url('img/favicon.png') }}" type="image/png">

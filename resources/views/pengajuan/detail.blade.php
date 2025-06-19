@@ -307,7 +307,8 @@
                                     </div>
                                 @empty
                                     <div class="alert alert-light border">
-                                        <i class="fas fa-info-circle mr-2"></i> Belum ada riwayat persetujuan
+
+                                        Belum ada riwayat persetujuan
                                     </div>
                                 @endforelse
                             </div>
