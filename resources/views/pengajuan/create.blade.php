@@ -54,6 +54,26 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="nd" class="form-label">ND</label>
+                                    <input type="text" name="nd"
+                                        class="form-control @error('nd') is-invalid @enderror" value="{{ old('nd') }}"
+                                        placeholder="ND" required>
+                                    @error('nd')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Deskripsi -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="rab" class="form-label">RAB</label>
+                                    <input type="text" name="rab"
+                                        class="form-control @error('rab') is-invalid @enderror" value="{{ old('rab') }}"
+                                        placeholder="RAB" required>
+                                    @error('rab')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
                                 <!-- Upload Bukti -->
                                 <div class="col-md-12 mb-4">

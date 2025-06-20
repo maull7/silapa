@@ -400,6 +400,34 @@
                                                 data-target="#deleteModal{{ $item->id }}">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
+                                            <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
+                                                aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel">Konfirmasi
+                                                            </h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Jika Anda menekan tombol hapus maka data akan terhapus.
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Kembali</button>
+                                                            <form action="{{ route('pengajuan.destroy', $item->id) }}"
+                                                                method="POST" style="display:inline;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger">Hapus</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <a href="{{ route('detail', $item->id) }}" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-eye"></i>
                                             </a>

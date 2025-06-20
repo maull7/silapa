@@ -32,6 +32,8 @@ class PengajuanController extends Controller
             'title' => 'required|string|max:255',
             'desc' => 'required|string|max:255',
             'bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'nd' => 'required|string|max:255',
+            'rab' => 'required|string|max:255'
         ]);
 
         $fileName = null;
@@ -57,6 +59,8 @@ class PengajuanController extends Controller
             'desc' => $request->desc,
             'bukti' => $fileName,
             'level' => $level,
+            'nd' => $request->nd,
+            'rab' => $request->rab,
             'status' => 'pending',
             'keterangan' => 'Baru diajukan',
             'tanggal' => now(),
@@ -126,41 +130,44 @@ class PengajuanController extends Controller
             'title' => 'required|string|max:255',
             'desc' => 'required|string|max:255',
             'bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'nd' => 'required|string|max:255',
+            'rab' => 'required|string|max:255'
         ]);
 
+        $fileName = null;
         if ($request->hasFile('bukti')) {
             $file = $request->file('bukti');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $destinationPath = public_path('bukti_pengajuan'); // folder lebih rapi & jelas
+            $destinationPath = public_path('bukti_pengajuan');
 
-            // Buat folder kalau belum ada
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
 
             $file->move($destinationPath, $fileName);
-
-            // Simpan path-nya ke database
-            $path = 'bukti_pengajuan/' . $fileName;
         }
 
         $level = Auth::user()->role;
 
-        // Insert data ke database
-        DB::table('request')->where('id', $id)->update([
-            'user_id' => auth()->id(),          // atau sesuai logika user
+        $dataUpdate = [
+            'user_id' => auth()->id(),
             'title' => $request->title,
             'desc' => $request->desc,
-            'bukti' => $fileName,
-            'level' => $level,                      // default level misal
-            'status' => 'Menunggu Persetujuan Bos 1',             // default status
-            'keterangan' => 'Baru diajukan',               // bisa juga null jika opsional
-            'created_at' => now(),
+            'nd' => $request->nd,
+            'rab' => $request->rab,
+            'level' => $level,
             'updated_at' => now(),
-        ]);
+        ];
+
+        if ($fileName) {
+            $dataUpdate['bukti'] = $fileName;
+        }
+
+        DB::table('request')->where('id', $id)->update($dataUpdate);
 
         return redirect()->route('pengajuan.index')->with('success', 'Pengajuan berhasil diubah.');
     }
+
 
     public function destroy($id)
     {

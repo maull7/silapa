@@ -46,6 +46,29 @@
                                     @enderror
                                 </div>
 
+                                <div class="col-md-6 mb-3">
+                                    <label for="nd" class="form-label">ND</label>
+                                    <input type="text" name="nd"
+                                        class="form-control @error('nd') is-invalid @enderror"
+                                        value="{{ old('nd', $data->nd) }}" placeholder="Contoh: Permintaan Dana Buku"
+                                        required>
+                                    @error('nd')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Deskripsi -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="rab" class="form-label">RAB</label>
+                                    <input type="text" name="rab"
+                                        class="form-control @error('rab') is-invalid @enderror"
+                                        value="{{ old('rab', $data->rab) }}"
+                                        placeholder="Contoh: Dana pembelian buku pelajaran" required>
+                                    @error('rab')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <!-- Upload Bukti -->
                                 <div class="col-md-12 mb-4">
                                     <label for="bukti" class="form-label">Upload Bukti Baru (PDF/JPG/PNG)</label>

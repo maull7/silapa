@@ -548,17 +548,17 @@
                             <label for="role">Role</label>
                             <select name="role" id="role" class="form-control" required>
                                 <option value="">Pilih Role</option>
-                                <option value="1">Siswa</option>
-                                <option value="2">Wali Kelas</option>
-                                <option value="3">Kurikulum</option>
-                                <option value="4">Kepala Sekolah</option>
+                                <option value="1">Yankes / Provos</option>
+                                <option value="2">Paur</option>
+                                <option value="3">Kabag / Kasubag</option>
+                                <option value="4">Bensat / PPK</option>
                                 <option value="5">Kepala Yayasan</option>
                             </select>
                         </div>
                         <div class="form-group d-none" id="walas-group">
-                            <label for="wali_kelas">Pilih Wali Kelas</label>
+                            <label for="wali_kelas">Pilih Paur</label>
                             <select name="id_parent" id="wali_kelas" class="form-control">
-                                <option value="">Pilih Wali Kelas</option>
+                                <option value="">Pilih Paur</option>
                                 @foreach ($walas as $walasItem)
                                     <option value="{{ $walasItem->id }}">{{ $walasItem->name }}</option>
                                 @endforeach
