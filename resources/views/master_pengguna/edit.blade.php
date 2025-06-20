@@ -80,18 +80,19 @@
                                         <label for="role">Role</label>
                                         <select name="role" id="role" class="form-control" required>
                                             <option value="">Pilih Role</option>
-                                            <option value="1" @selected($user->role == 1)>Yankes / Provos</option>
-                                            <option value="2" @selected($user->role == 2)>Paur</option>
-                                            <option value="3" @selected($user->role == 3)>Kabag / Kasubag</option>
-                                            <option value="4" @selected($user->role == 4)>Bensat / PPK</option>
-                                            <option value="5" @selected($user->role == 5)>Kepala Yayasan</option>
+                                            <option value="1" @selected($user->role == 1)>Yankes / Provos / Paur
+                                            </option>
+                                            <option value="2" @selected($user->role == 2)>Kabag / Kasubag</option>
+                                            <option value="3" @selected($user->role == 3)>BENSAT</option>
+                                            <option value="4" @selected($user->role == 4)>PPK</option>
+                                            <option value="5" @selected($user->role == 5)>Kasebasa</option>
                                         </select>
                                     </div>
 
                                     <div class="form-group d-none" id="walas-group">
-                                        <label for="wali_kelas">Pilih Paur</label>
+                                        <label for="wali_kelas">Pilih Kabag / Kasubag</label>
                                         <select name="id_parent" id="wali_kelas" class="form-control">
-                                            <option value="">Pilih Paur</option>
+                                            <option value="">Pilih Kabag / Kasubag</option>
                                             @foreach ($walas as $walasItem)
                                                 <option value="{{ $walasItem->id }}"
                                                     {{ isset($parentId) && $walasItem->id == $parentId ? 'selected' : '' }}>
