@@ -82,31 +82,75 @@
                         <!-- Bukti Pengajuan -->
                         <div class="mb-5">
                             <h5 class="mb-3 d-flex align-items-center">
-                                <i class="fas fa-paperclip text-primary mr-2"></i>
+                                <i class="fas fa-paperclip text-primary me-2"></i>
                                 Bukti Pengajuan
                             </h5>
-                            <div class="border rounded p-3 bg-light">
-                                @if (Str::endsWith($data->bukti, ['.jpg', '.jpeg', '.png']))
-                                    <a href="{{ asset('bukti_pengajuan/' . $data->bukti) }}"
-                                        data-lightbox="bukti-pengajuan">
-                                        <img src="{{ asset('bukti_pengajuan/' . $data->bukti) }}"
-                                            class="img-fluid rounded shadow" style="max-height: 300px; cursor: zoom-in;">
-                                    </a>
-                                    <p class="text-muted small mt-2">Klik gambar untuk memperbesar</p>
-                                @else
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-file-pdf text-danger fa-3x mr-3"></i>
-                                        <div>
-                                            <p class="mb-1">{{ $data->bukti }}</p>
-                                            <a href="{{ asset('bukti_pengajuan/' . $data->bukti) }}" target="_blank"
-                                                class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye mr-1"></i> Lihat Dokumen
-                                            </a>
+
+                            <div class="row g-4">
+                                @foreach ($fileUploads as $field => $file)
+                                    @php
+                                        $fileName = $file->file_path;
+                                        $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                                        $url = asset('request_uploads/' . $fileName);
+                                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png']);
+                                        $isPDF = $ext === 'pdf';
+                                        $isWord = in_array($ext, ['doc', 'docx']);
+                                        $isExcel = in_array($ext, ['xls', 'xlsx']);
+                                    @endphp
+
+                                    <div class="col-md-6 col-xl-4">
+                                        <div class="card shadow-sm h-100 border-0">
+                                            <div class="card-body">
+                                                <p class="fw-semibold text-muted small mb-2">
+                                                    {{ Str::headline($field) }}
+                                                </p>
+
+                                                @if ($isImage)
+                                                    <a href="{{ $url }}" data-lightbox="uploads">
+                                                        <img src="{{ $url }}" alt="Image preview"
+                                                            class="img-fluid rounded shadow-sm border"
+                                                            style="max-height: 240px; object-fit: contain; cursor: zoom-in;">
+                                                    </a>
+                                                    <p class="text-muted small mt-2">Klik gambar untuk memperbesar</p>
+                                                @elseif ($isPDF)
+                                                    <iframe src="{{ $url }}#toolbar=0&navpanes=0" width="100%"
+                                                        height="240px"
+                                                        style="border:1px solid #ccc; border-radius: 8px;"></iframe>
+                                                    <a href="{{ $url }}" target="_blank"
+                                                        class="btn btn-outline-primary btn-sm mt-2 w-100">
+                                                        <i class="fas fa-eye me-1"></i> Buka PDF Penuh
+                                                    </a>
+                                                @elseif ($isWord || $isExcel)
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <i
+                                                            class="fas fa-file-{{ $isWord ? 'word' : 'excel' }} fa-3x text-{{ $isWord ? 'primary' : 'success' }} me-3"></i>
+                                                        <div>
+                                                            <p class="mb-1 small">{{ $fileName }}</p>
+                                                            <a href="{{ $url }}" target="_blank"
+                                                                class="btn btn-sm btn-outline-secondary">
+                                                                <i class="fas fa-eye me-1"></i> Lihat Dokumen
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <i class="fas fa-file-alt fa-3x text-secondary me-3"></i>
+                                                        <div>
+                                                            <p class="mb-1 small">{{ $fileName }}</p>
+                                                            <a href="{{ $url }}" target="_blank"
+                                                                class="btn btn-sm btn-outline-dark">
+                                                                <i class="fas fa-download me-1"></i> Unduh
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                @endif
+                                @endforeach
                             </div>
                         </div>
+
 
                         <!-- Approval Timeline -->
                         <div class="mb-4">
@@ -227,7 +271,8 @@
                                                                                         ->first();
                                                                                 @endphp
 
-                                                                                <span class="text-muted font-weight-normal">
+                                                                                <span
+                                                                                    class="text-muted font-weight-normal">
                                                                                     membalas
                                                                                     <span
                                                                                         class="font-italic">{{ $originalCommenter->replier_name ?? 'Pengguna' }}</span>
@@ -318,9 +363,16 @@
 
                         <!-- Action Buttons -->
                         <div class="d-flex justify-content-between align-items-center border-top pt-4">
-                            <a href="{{ route('pengajuan.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar
+                            @php
+                                $fromPage = session('from_page');
+
+                            @endphp
+
+                            <a href="{{ url($fromPage) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Kembali
                             </a>
+
+
 
 
                         </div>

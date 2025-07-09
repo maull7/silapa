@@ -56,7 +56,7 @@
                                 <div class="col-md-6">
 
                                     <div class="form-group" id="nip-group">
-                                        <label for="nip">NIP</label>
+                                        <label for="nip">Username</label>
                                         <input type="text" name="nip" id="nip"
                                             class="form-control @error('nip') is-invalid @enderror"
                                             value="{{ old('nip', $user->nip) }}" required>
@@ -80,12 +80,12 @@
                                         <label for="role">Role</label>
                                         <select name="role" id="role" class="form-control" required>
                                             <option value="">Pilih Role</option>
-                                            <option value="1" @selected($user->role == 1)>Yankes / Provos / Paur
+                                            <option value="1" @selected($user->role == 1)>OPERATOR
                                             </option>
-                                            <option value="2" @selected($user->role == 2)>Kabag / Kasubag</option>
-                                            <option value="3" @selected($user->role == 3)>BENSAT</option>
-                                            <option value="4" @selected($user->role == 4)>PPK</option>
-                                            <option value="5" @selected($user->role == 5)>Kasebasa</option>
+                                            <option value="2" @selected($user->role == 2)>VALIDATOR</option>
+                                            <option value="3" @selected($user->role == 3)>APPROVER</option>
+                                            <option value="4" @selected($user->role == 4)>FINANCE</option>
+                                            <option value="5" @selected($user->role == 5)>AUDITOR</option>
                                         </select>
                                     </div>
 
@@ -109,7 +109,7 @@
                             </div>
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-danger">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                 <a href="{{ route('master_pengguna.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>

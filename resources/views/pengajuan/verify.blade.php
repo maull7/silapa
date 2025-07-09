@@ -350,9 +350,9 @@
                                 <tr>
                                     <th width="5%">No</th>
                                     <th width="15%">Yang Mengajukan</th>
-                                    <th width="15%">Judul Pengajuan</th>
+                                    <th width="15%">Nama Pengadaan</th>
                                     <th width="15%">Deskripsi</th>
-                                    <th width="10%">Bukti Ajuan</th>
+
                                     <th width="10%">Status</th>
                                     <th width="10%">Keterangan</th>
                                     <th width="10%">Aksi</th>
@@ -368,17 +368,22 @@
                                         <td>
                                             {{ $item->desc }}
                                         </td>
-                                        <td><a href="{{ asset('bukti_pengajuan/' . $item->bukti) }}" target="_blank">Lihat
-                                                Bukti</a></td>
+
                                         <td>
                                             @if ($item->status == 'pending')
                                                 <span class="badge badge-warning">Pending</span>
-                                            @elseif ($item->status == 'approve')
-                                                <span class="badge badge-success">Approved</span>
-                                            @elseif ($item->status == 'rejected')
-                                                <span class="badge badge-danger">Rejected</span>
                                             @else
-                                                <span class="badge badge-secondary">{{ ucfirst($item->status) }}</span>
+                                                @if ($item->status == 'approve' && $item->level < 4)
+                                                    <span class="badge badge-warning">Menunggu Di Approve</span>
+                                                @elseif($item->status == 'repair' && $item->level < 4)
+                                                    <span class="badge badge-info">Sudah diperbaiki</span>
+                                                @elseif($item->status == 'revisi' && $item->level < 4)
+                                                    <span class="badge badge-info">Menunggu revisi</span>
+                                                @elseif($item->status == 'rejected')
+                                                    <span class="badge badge-warning">Di tolak</span>
+                                                @else
+                                                    <span class="badge badge-success">Di Approve</span>
+                                                @endif
                                             @endif
                                         </td>
                                         <td>{{ $item->keterangan }}</td>
@@ -395,7 +400,7 @@
                                                 $pengajuanLevel = $item->level;
                                             @endphp
 
-                                            @if ($pengajuanLevel === $userLevel - 1 && in_array($item->status, ['pending', 'approve']))
+                                            @if ($pengajuanLevel === $userLevel - 1 && in_array($item->status, ['pending', 'approve', 'repair']))
                                                 <button class="btn btn-success btn-sm" data-toggle="modal"
                                                     data-target="#approveModal-{{ $item->id }}">
                                                     <i class="fas fa-check"></i>
@@ -404,14 +409,19 @@
                                                     data-target="#rejectModal-{{ $item->id }}">
                                                     <i class="fas fa-times"></i>
                                                 </button>
-                                            @else
-                                                <a href="{{ route('detail', $item->id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-eye"></i>
+                                            @elseif($pengajuanLevel == $userLevel && $item->status == 'revisi')
+                                                <a href="{{ route('revisi', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                    class="btn btn-secondary btn-sm">
+                                                    <i class="fas fa-wrench"></i>
                                                 </a>
+                                            @else
                                             @endif
+                                            <a href="{{ route('detail', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
 
-                                            {{-- Modal Approve --}}
-                                            {{-- Modal Approve --}}
+
                                             <div class="modal fade" id="approveModal-{{ $item->id }}" tabindex="-1"
                                                 role="dialog" aria-labelledby="approveLabel-{{ $item->id }}"
                                                 aria-hidden="true">
@@ -449,41 +459,157 @@
                                             </div>
 
                                             {{-- Modal Reject --}}
-                                            <div class="modal fade" id="rejectModal-{{ $item->id }}" tabindex="-1"
-                                                role="dialog" aria-labelledby="rejectLabel-{{ $item->id }}"
-                                                aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <form action="{{ route('reject', $item->id) }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-content">
-                                                            <div class="modal-header bg-danger text-white">
-                                                                <h5 class="modal-title"
-                                                                    id="rejectLabel-{{ $item->id }}">Tolak Pengajuan
-                                                                </h5>
-                                                                <button type="button" class="close text-white"
-                                                                    data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="form-group">
-                                                                    <label
-                                                                        for="comment-reject-{{ $item->id }}">Komentar</label>
-                                                                    <textarea name="komentar" id="comment-reject-{{ $item->id }}" class="form-control" rows="3"
-                                                                        placeholder="Alasan penolakan..."></textarea>
+                                            @foreach ($data as $item)
+                                                <div class="modal fade" id="rejectModal-{{ $item->id }}" tabindex="-1"
+                                                    role="dialog" aria-labelledby="rejectLabel-{{ $item->id }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg" role="document">
+                                                        <form action="{{ route('reject', $item->id) }}" method="POST">
+                                                            @csrf
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-danger text-white">
+                                                                    <h5 class="modal-title"
+                                                                        id="rejectLabel-{{ $item->id }}">Tolak / Revisi
+                                                                        Pengajuan</h5>
+                                                                    <button type="button" class="close text-white"
+                                                                        data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
                                                                 </div>
-                                                                <p class="mt-3">Yakin ingin menolak pengajuan ini?</p>
+
+                                                                <div class="modal-body">
+                                                                    <!-- Aksi -->
+                                                                    <div class="form-group">
+                                                                        <label><strong>Pilih Aksi:</strong></label>
+                                                                        <select name="aksi" class="form-control"
+                                                                            id="action-{{ $item->id }}"
+                                                                            onchange="toggleRevisiSection({{ $item->id }})"
+                                                                            required>
+                                                                            <option value="tolak">Tolak</option>
+                                                                            <option value="revisi">Revisi</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Komentar Umum -->
+                                                                    <div class="form-group">
+                                                                        <label><strong>Komentar Umum</strong></label>
+                                                                        <textarea name="komentar" class="form-control" rows="3"
+                                                                            placeholder="Tulis alasan umum penolakan atau revisi..."></textarea>
+                                                                    </div>
+
+                                                                    <!-- Komentar per file -->
+                                                                    <div class="revisi-section d-none"
+                                                                        id="revisi-section-{{ $item->id }}">
+                                                                        <label><strong>Pilih File yang Perlu
+                                                                                Direvisi:</strong></label>
+                                                                        <div class="row">
+                                                                            @foreach ($item->uploads as $upload)
+                                                                                @php
+                                                                                    $fileName = $upload->file_path;
+                                                                                    $field = $upload->field;
+                                                                                    $fileUrl = asset(
+                                                                                        'request_uploads/' . $fileName,
+                                                                                    );
+                                                                                @endphp
+
+                                                                                <div class="col-md-6 mb-3">
+                                                                                    <div class="card border">
+                                                                                        <div class="card-body">
+                                                                                            <div class="form-check mb-2">
+                                                                                                <input type="checkbox"
+                                                                                                    class="form-check-input"
+                                                                                                    id="check-{{ $field }}-{{ $item->id }}"
+                                                                                                    name="revisi_files[{{ $upload->id }}][checked]"
+                                                                                                    value="on"
+                                                                                                    onchange="toggleFileComment('{{ $field }}', {{ $item->id }})">
+                                                                                                <label
+                                                                                                    class="form-check-label"
+                                                                                                    for="check-{{ $field }}-{{ $item->id }}">
+                                                                                                    Revisi:
+                                                                                                    {{ Str::headline($field) }}
+                                                                                                </label>
+                                                                                            </div>
+
+                                                                                            <div>
+                                                                                                @php
+                                                                                                    $extension = strtolower(
+                                                                                                        pathinfo(
+                                                                                                            $fileName,
+                                                                                                            PATHINFO_EXTENSION,
+                                                                                                        ),
+                                                                                                    );
+                                                                                                @endphp
+
+                                                                                                <!-- Link download -->
+                                                                                                <a href="{{ $fileUrl }}"
+                                                                                                    target="_blank"
+                                                                                                    class="d-block mb-2 text-primary">
+                                                                                                    <i
+                                                                                                        class="fas fa-file-download me-1"></i>
+                                                                                                    {{ $fileName }}
+                                                                                                </a>
+
+                                                                                                <!-- Preview file -->
+                                                                                                @if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif']))
+                                                                                                    <img src="{{ $fileUrl }}"
+                                                                                                        alt="Preview"
+                                                                                                        class="img-fluid rounded border mb-2"
+                                                                                                        style="max-height: 200px;">
+                                                                                                @elseif($extension === 'pdf')
+                                                                                                    <embed
+                                                                                                        src="{{ $fileUrl }}"
+                                                                                                        type="application/pdf"
+                                                                                                        width="100%"
+                                                                                                        height="200px"
+                                                                                                        class="border rounded mb-2" />
+                                                                                                @else
+                                                                                                    <div
+                                                                                                        class="text-muted small">
+                                                                                                        Preview tidak
+                                                                                                        tersedia. Silakan
+                                                                                                        unduh file.</div>
+                                                                                                @endif
+
+
+                                                                                            </div>
+
+                                                                                            <div id="comment-{{ $field }}-{{ $item->id }}"
+                                                                                                class="d-none">
+                                                                                                <label
+                                                                                                    for="komentar-{{ $field }}-{{ $item->id }}"
+                                                                                                    class="small">
+                                                                                                    Komentar File
+                                                                                                </label>
+                                                                                                <textarea class="form-control form-control-sm" name="revisi_files[{{ $upload->id }}][komentar]"
+                                                                                                    id="komentar-{{ $field }}-{{ $item->id }}" rows="2"
+                                                                                                    placeholder="Tulis alasan revisi untuk file ini..."></textarea>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <p class="mt-3 text-danger font-weight-bold">Yakin
+                                                                        ingin melanjutkan aksi ini?</p>
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger">Kirim</button>
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal">Batal</button>
+                                                                </div>
                                                             </div>
-                                                            <div class="modal-footer">
-                                                                <button type="submit"
-                                                                    class="btn btn-danger">Tolak</button>
-                                                                <button type="button" class="btn btn-secondary"
-                                                                    data-dismiss="modal">Batal</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                        </form>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endforeach
+
+
+
+
 
                                         </td>
 
@@ -520,5 +646,31 @@
         $('.datatable').DataTable({
             responsive: true
         });
+    </script>
+    <script>
+        function toggleRevisiSection(id) {
+            const select = document.getElementById('action-' + id);
+            const revisiBox = document.getElementById('revisi-section-' + id);
+            if (select.value === 'revisi') {
+                revisiBox.classList.remove('d-none');
+            } else {
+                revisiBox.classList.add('d-none');
+            }
+        }
+
+        function toggleFileComment(field, itemId) {
+            const checkbox = document.getElementById(`check-${field}-${itemId}`);
+            const commentDiv = document.getElementById(`comment-${field}-${itemId}`);
+            const textarea = document.getElementById(`komentar-${field}-${itemId}`);
+
+            if (checkbox.checked) {
+                commentDiv.classList.remove('d-none');
+                textarea.setAttribute('required', 'required');
+            } else {
+                commentDiv.classList.add('d-none');
+                textarea.removeAttribute('required');
+                textarea.value = ''; // Clear textarea when unchecked
+            }
+        }
     </script>
 @endsection

@@ -56,7 +56,7 @@
 
         /* Header styling */
         .card-header {
-            background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+            background: linear-gradient(135deg, #64b5f6 0%, #1565c0 100%);
             color: white;
             border-bottom: none;
             padding: 25px 20px 70px;
@@ -121,8 +121,8 @@
         }
 
         .form-control:focus {
-            border-color: #df4e4e;
-            box-shadow: 0 0 0 0.2rem rgba(223, 78, 78, 0.25);
+            border-color: #1565c0;
+            box-shadow: 0 0 0 0.2rem rgba(78, 141, 223, 0.25);
         }
 
         .input-group-text {
@@ -130,12 +130,12 @@
             background-color: #f8f9fc;
             border: 1px solid #d1d3e2;
             border-left: none;
-            color: #df4e4e;
+            color: #1565c0;
         }
 
         /* Button styling matching dashboard */
         .btn-primary {
-            background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+            background: linear-gradient(135deg, #356de5 0%, #1c2cb7 100%);
             border: none;
             border-radius: 10px;
             padding: 12px;
@@ -146,7 +146,7 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #e90400 0%, #682828 100%);
+            background: linear-gradient(135deg, #0017e9 0%, #2780d3 100%);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(223, 78, 78, 0.25);
         }
@@ -204,7 +204,7 @@
         }
 
         .password-toggle:hover {
-            color: #be2222;
+            color: #2246be;
         }
 
         /* Modal styling */

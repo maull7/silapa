@@ -24,7 +24,7 @@
 
         <section class="content">
             <div class="container-fluid">
-                <button type="button" class="btn btn-danger mb-3" data-toggle="modal" data-target="#tambahJurusanModal">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#tambahJurusanModal">
                     Tambah Jabatan
                 </button>
                 <!-- Tombol Ekspor -->
@@ -57,7 +57,7 @@
                                                     class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                                     data-target="#deleteModal{{ $i->id }}">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
@@ -85,7 +85,7 @@
                                                                     @csrf
                                                                     @method('DELETE')
                                                                     <button type="submit"
-                                                                        class="btn btn-danger">Hapus</button>
+                                                                        class="btn btn-primary">Hapus</button>
                                                                 </form>
                                                             </div>
                                                         </div>
@@ -124,7 +124,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger">Simpan</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>

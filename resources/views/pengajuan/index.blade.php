@@ -337,7 +337,7 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Tombol Tambah User -->
-                <a href="/ajukan-pengajuan" class="btn btn-danger mb-3">
+                <a href="/ajukan-pengajuan" class="btn btn-primary mb-3">
                     Ajukan Pengajuan
                 </a>
                 <!-- Tombol Ekspor -->
@@ -353,9 +353,8 @@
                                 <tr>
                                     <th width="5%">No</th>
                                     <th width="15%">Yang Mengajukan</th>
-                                    <th width="15%">Judul Pengajuan</th>
+                                    <th width="15%">Nama Pengadaan</th>
                                     <th width="15%">Deskripsi</th>
-                                    <th width="10%">Bukti Ajuan</th>
                                     <th width="10%">Status</th>
                                     <th width="10%">Keterangan</th>
                                     <th width="10%">Aksi</th>
@@ -371,19 +370,30 @@
                                         <td>
                                             {{ $item->desc }}
                                         </td>
-                                        <td><a href="{{ asset('bukti_pengajuan/' . $item->bukti) }}" target="_blank">Lihat
-                                                Bukti</a></td>
+                                        @php
+                                            $userLevel = Auth::user()->role;
+                                            $approvalLevel = $item->level; // misalnya kamu punya kolom ini
+                                        @endphp
+
                                         <td>
                                             @if ($item->status == 'pending')
                                                 <span class="badge badge-warning">Pending</span>
-                                            @elseif ($item->status == 'approve')
-                                                <span class="badge badge-success">Approved</span>
-                                            @elseif ($item->status == 'rejected')
-                                                <span class="badge badge-danger">Rejected</span>
                                             @else
-                                                <span class="badge badge-secondary">{{ ucfirst($item->status) }}</span>
+                                                @if ($item->status == 'approve' && $item->level < 4)
+                                                    <span class="badge badge-warning">Menunggu Di Approve</span>
+                                                @elseif($item->status == 'repair' && $item->level < 4)
+                                                    <span class="badge badge-info">Sudah diperbaiki</span>
+                                                @elseif($item->status == 'revisi' && $item->level < 4)
+                                                    <span class="badge badge-info">Menunggu revisi</span>
+                                                @elseif($item->status == 'rejected')
+                                                    <span class="badge badge-warning">Di tolak</span>
+                                                @else
+                                                    <span class="badge badge-success">Di Approve</span>
+                                                @endif
                                             @endif
                                         </td>
+
+
 
                                         <td>{{ $item->keterangan }}</td>
 
@@ -391,46 +401,103 @@
 
 
                                         <td>
-                                            <a href="{{ route('pengajuan.edit', $item->id) }}"
-                                                class="btn btn-warning btn-sm">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
 
-                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
-                                                data-target="#deleteModal{{ $item->id }}">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                            <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
-                                                aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="deleteModalLabel">Konfirmasi
-                                                            </h5>
-                                                            <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Jika Anda menekan tombol hapus maka data akan terhapus.
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal">Kembali</button>
-                                                            <form action="{{ route('pengajuan.destroy', $item->id) }}"
-                                                                method="POST" style="display:inline;">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger">Hapus</button>
-                                                            </form>
+
+
+                                            @if ($item->status == 'revisi')
+                                                <a href="{{ route('pengajuan.edit', $item->id) }}"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+
+                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                                    data-target="#deleteModal{{ $item->id }}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                                <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
+                                                    aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="deleteModalLabel">Konfirmasi
+                                                                </h5>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Jika Anda menekan tombol hapus maka data akan terhapus.
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Kembali</button>
+                                                                <form action="{{ route('pengajuan.destroy', $item->id) }}"
+                                                                    method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <a href="{{ route('detail', $item->id) }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                                <a href="{{ route('detail', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                @if ($item->level == $userLevel > 1 ? $userLevel - 1 : 1)
+                                                    <a href="{{ route('revisi', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                        class="btn btn-secondary btn-sm">
+                                                        <i class="fas fa-wrench"></i>
+                                                    </a>
+                                                @endif
+                                            @else
+                                                <a href="{{ route('pengajuan.edit', $item->id) }}"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+
+                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                                    data-target="#deleteModal{{ $item->id }}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                                <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
+                                                    aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="deleteModalLabel">Konfirmasi
+                                                                </h5>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Jika Anda menekan tombol hapus maka data akan terhapus.
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Kembali</button>
+                                                                <form action="{{ route('pengajuan.destroy', $item->id) }}"
+                                                                    method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger">Hapus</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ route('detail', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            @endif
+
                                         </td>
 
 

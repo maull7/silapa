@@ -36,7 +36,7 @@ class LoginController extends Controller
         if (Auth::attempt($datalogin)) {
             return redirect('/home');
         } else {
-            Session::flash('error', 'Nip / Password Salah !');
+            Session::flash('error', 'Username / Password Salah !');
             return redirect('/');
             //return redirect('/');
         }

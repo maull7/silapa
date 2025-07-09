@@ -32,7 +32,7 @@
 
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-danger">Simpan</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
                                 <a href="{{ route('master_jabatan.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>

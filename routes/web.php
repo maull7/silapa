@@ -1,6 +1,7 @@
 <?php
 
 use App\Exports\RequestExport;
+use App\Http\Controllers\BerkasBensatController;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,9 +16,8 @@ use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\MasterUserController;
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterPenggunaController;
-
-
-
+use App\Http\Controllers\RevisiController;
+use Maatwebsite\Excel\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,7 +117,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/verifikasi-pengajuan', [PengajuanController::class, 'verify'])->name('pengajuan.verify');
 
     //route acc reject
-
     Route::post('/approve/{id}', [PengajuanController::class, 'approve'])->name('approve');
     Route::post('/reject/{id}', [PengajuanController::class, 'reject'])->name('reject');
     Route::post('/approvals-reply/{id}', [PengajuanController::class, 'reply'])->name('approval.reply');
@@ -129,9 +128,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     //notif
     Route::get('/read', [NotifController::class, 'read'])->name('notif.read');
+
+
+
+    //revisi
+    Route::get('/revisi/{id}', [RevisiController::class, 'revisi'])->name('revisi');
+    Route::post('revisi-store', [RevisiController::class, 'revisiStore'])->name('revisi.store');
+
+    //bensat
+    Route::get('/berkas-bensat/{id}', [BerkasBensatController::class, 'create'])->name('bensat.create');
+    Route::post('/tambah-berkas/{id}', [BerkasBensatController::class, 'store'])->name('bensat.store');
+
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-
-
+    Route::get('/laporan-detail/{id}', [LaporanController::class, 'detail'])->name('laporan.detail');
     Route::get('/laporan-approval-export', function () {
         $requests = DB::table('request')
             ->join('users', 'users.id', '=', 'request.user_id')
@@ -140,13 +149,21 @@ Route::group(['middleware' => 'auth'], function () {
                 $query->whereBetween('request.tanggal', [request('start_date'), request('end_date')]);
             })
             ->when(request('status'), function ($query) {
-                $query->where('request.status', request('status'));
+                if (request('status') == 'approve') {
+                    // Jika filter status = approve, hanya ambil level 4
+                    $query->where('request.status', 'approve')
+                        ->where('request.level', 4);
+                } else {
+                    $query->where('request.status', request('status'));
+                }
             })
             ->orderBy('request.tanggal', 'desc')
             ->get();
 
         return Excel::download(new RequestExport($requests), 'laporan_approval.xlsx');
     })->name('laporan_approval.export');
+
+    Route::get('/laporan/{id}/download-zip', [LaporanController::class, 'downloadZip'])->name('laporan.downloadZip');
 });
 // //master untuk role admin mengandung master master
 // Route::group(['middleware' => ['auth', 'admin.only']], function () {

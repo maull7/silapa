@@ -91,17 +91,21 @@
                                                 <td>
                                                     <span
                                                         class="badge 
-                                    {{ $item->status == 'approved' ? 'badge-success' : ($item->status == 'rejected' ? 'badge-danger' : 'badge-warning') }}">
+                                    {{ $item->status == 'approve' ? 'badge-success' : ($item->status == 'rejected' ? 'badge-danger' : 'badge-warning') }}">
                                                         {{ ucfirst($item->status) }}
                                                     </span>
                                                 </td>
                                                 <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                                                 <td>{{ $item->keterangan }}</td>
                                                 <td>
-                                                    <a href="{{ route('detail', $item->id) }}" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i> Detail
+
+                                                    <a href="{{ route('laporan.detail', $item->id) }}"
+                                                        class="btn btn-success btn-sm">
+                                                        <i class="fas fa-file-excel text-white"></i>
                                                     </a>
+
                                                 </td>
+
                                             </tr>
                                         @endforeach
                                     </tbody>

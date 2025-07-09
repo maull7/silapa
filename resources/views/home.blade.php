@@ -144,7 +144,7 @@
             <div class="container-fluid">
                 <div class="row align-items-center mb-4">
                     <div class="col-sm-6">
-                        <h1 class="m-0 font-weight-bold text-danger">Dashboard</h1>
+                        <h1 class="m-0 font-weight-bold text-primary">Dashboard</h1>
                     </div>
                     <div class="col-sm-6">
                         <div class="float-right text-muted">
@@ -160,10 +160,10 @@
                 <!-- Welcome Card -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="card bg-gradient-danger text-white overflow-hidden shadow-lg">
+                        <div class="card bg-gradient-primary text-white overflow-hidden shadow-lg">
                             <div class="card-body d-flex align-items-center p-4">
                                 <div class="mr-4">
-                                    <div class="avatar bg-white text-danger rounded-circle p-3 shadow-sm">
+                                    <div class="avatar bg-white text-primary rounded-circle p-3 shadow-sm">
                                         <i class="fas fa-user fa-2x"></i>
                                     </div>
                                 </div>

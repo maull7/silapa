@@ -48,7 +48,7 @@ class MasterPenggunaController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:4',
             'nip' => 'required|string',
             'id_jabatan' => 'required|exists:master_jabatan,id',
             'role' => 'required'
@@ -122,20 +122,27 @@ class MasterPenggunaController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:4',
             'nip' => 'required|string',
             'id_jabatan' => 'required|exists:master_jabatan,id',
             'role' => 'required'
         ]);
-        $mapId = DB::table('map')->where('id_child', $id)->first();
-        if ($request->role == 1) {
-            DB::table('map')->where('id_map', $mapId->id_map)->update([
-                'id_parent' => $request->id_parent,
-                'id_child' => $user->id
-            ]);
+
+        // Update tabel 'map' jika id_parent tersedia
+        if ($request->filled('id_parent')) {
+            $mapId = DB::table('map')->where('id_child', $id)->first();
+            if ($mapId) {
+                DB::table('map')->where('id_map', $mapId->id_map)->update([
+                    'id_parent' => $request->id_parent,
+                    'id_child' => $user->id
+                ]);
+            } else {
+                DB::table('map')->insert([
+                    'id_parent' => $request->id_parent,
+                    'id_child' => $user->id
+                ]);
+            }
         }
-
-
 
         // Update data user
         $user->name = $validated['name'];
@@ -144,7 +151,7 @@ class MasterPenggunaController extends Controller
         $user->id_jabatan = $validated['id_jabatan'];
         $user->role = $validated['role'];
 
-        // Hanya update password jika diisi
+        // Jika password diisi, baru di-update
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
@@ -153,6 +160,7 @@ class MasterPenggunaController extends Controller
 
         return redirect('/master_pengguna')->with('success', 'Data user berhasil diperbarui!');
     }
+
 
 
     /**

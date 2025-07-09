@@ -56,7 +56,7 @@
                                 <div class="col-md-6">
 
                                     <div class="form-group" id="nip-group">
-                                        <label for="nip">NIP</label>
+                                        <label for="nip">Username</label>
                                         <input type="text" name="nip" id="nip"
                                             class="form-control @error('nip') is-invalid @enderror"
                                             value="{{ old('nip', $user->nip) }}" required>
@@ -70,7 +70,7 @@
                             </div>
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-danger">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                 <a href="{{ route('master_user.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>

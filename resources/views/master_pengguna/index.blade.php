@@ -337,7 +337,7 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Tombol Tambah User -->
-                <button type="button" class="btn btn-danger mb-3" data-toggle="modal" data-target="#tambahUser">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#tambahUser">
                     Tambah Pengguna
                 </button>
                 <!-- Tombol Ekspor -->
@@ -355,7 +355,7 @@
                                     <th width="15%">Nama</th>
                                     <th width="15%">Email</th>
 
-                                    <th width="10%">NIP/NIK</th>
+                                    <th width="10%">Username</th>
                                     <th width="10%">Jabatan</th>
 
                                     <th width="10%">Aksi</th>
@@ -528,12 +528,23 @@
                         </div>
 
                         <div class="form-group" id="nip-group">
-                            <label for="nip">NIP/NIK</label>
+                            <label for="nip">Username</label>
                             <input type="text" class="form-control @error('nip') is-invalid @enderror" id="nip"
-                                name="nip" placeholder="Masukkan NIP" value="{{ old('nip') }}">
+                                name="nip" placeholder="Masukkan Username" value="{{ old('nip') }}">
                             @error('nip')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select name="role" id="role" class="form-control" required>
+                                <option value="">Pilih Role</option>
+                                <option value="1">OPERATOR</option>
+                                <option value="2">VALIDATOR</option>
+                                <option value="3">APPROVER</option>
+                                <option value="4">FINANCE</option>
+                                <option value="5">AUDITOR</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="Id">Jabatan</label>
@@ -544,21 +555,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
-                            <select name="role" id="role" class="form-control" required>
-                                <option value="">Pilih Role</option>
-                                <option value="1">Yankes / Provos / Paur</option>
-                                <option value="2">Kabag / Kasubag</option>
-                                <option value="3">BENSAT</option>
-                                <option value="4">PPK</option>
-                                <option value="5">Kasebasa</option>
-                            </select>
-                        </div>
+
                         <div class="form-group d-none" id="walas-group">
-                            <label for="wali_kelas">Pilih Kabag / Kasubag</label>
+                            <label for="wali_kelas">Pilih Validator</label>
                             <select name="id_parent" id="wali_kelas" class="form-control">
-                                <option value="">Pilih Kabag / Kasubag</option>
+                                <option value="">Pilih Validator</option>
                                 @foreach ($walas as $walasItem)
                                     <option value="{{ $walasItem->id }}">{{ $walasItem->name }}</option>
                                 @endforeach
@@ -569,9 +570,11 @@
 
 
 
+
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger">Simpan</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
                 </div>

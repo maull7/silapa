@@ -318,7 +318,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Master Users</h1>
+                        <h1 class="m-0">Master Admin</h1>
                     </div>
                 </div>
             </div>
@@ -337,7 +337,7 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Tombol Tambah User -->
-                <button type="button" class="btn btn-danger mb-3" data-toggle="modal" data-target="#tambahUser">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#tambahUser">
                     Tambah Admin
                 </button>
                 <!-- Tombol Ekspor -->
@@ -352,13 +352,13 @@
                             <thead>
                                 <tr>
                                     <th width="5%">No</th>
-                                    <th width="15%">Nama</th>
-                                    <th width="15%">Email</th>
-                                    <th width="10%">Role</th>
-                                    <th width="10%">NIP/NIK</th>
-                                    <th witdh="10%">Jabatan</th>
-                                    <th width="10%">Password</th>
-                                    <th width="10%">Aksi</th>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Username</th>
+                                    <th>Jabatan</th>
+
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -378,7 +378,7 @@
 
 
 
-                                        <td>********</td>
+
                                         <td>
                                             <a href="{{ route('master_user.edit', $user->id) }}"
                                                 class="btn btn-warning btn-sm">
@@ -392,7 +392,7 @@
                                                     <i class="fas fa-key"></i>
                                                 </button>
                                             @endif
-                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#deleteModal{{ $user->id }}">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
@@ -419,7 +419,7 @@
                                                             method="POST" style="display:inline;">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Hapus</button>
+                                                            <button type="submit" class="btn btn-primary">Hapus</button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -532,9 +532,9 @@
                         </div>
 
                         <div class="form-group" id="nip-group">
-                            <label for="nip">NIP/NIK</label>
+                            <label for="nip">Username</label>
                             <input type="text" class="form-control @error('nip') is-invalid @enderror" id="nip"
-                                name="nip" placeholder="Masukkan NIP" value="{{ old('nip') }}">
+                                name="nip" placeholder="Masukkan Username" value="{{ old('nip') }}">
                             @error('nip')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -545,7 +545,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger">Simpan</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
                 </div>

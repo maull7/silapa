@@ -350,9 +350,9 @@
                                 <tr>
                                     <th width="5%">No</th>
                                     <th width="15%">Yang Mengajukan</th>
-                                    <th width="15%">Judul Pengajuan</th>
+                                    <th width="15%">Judul Pengadaan</th>
                                     <th width="15%">Deskripsi</th>
-                                    <th width="10%">Bukti Ajuan</th>
+
                                     <th width="10%">Status</th>
                                     <th width="10%">Keterangan</th>
                                     <th width="10%">Aksi</th>
@@ -370,8 +370,7 @@
                                         <td>
                                             {{ $item->desc }}
                                         </td>
-                                        <td><a href="{{ asset('bukti_pengajuan/' . $item->bukti) }}" target="_blank">Lihat
-                                                Bukti</a></td>
+
                                         <td>
                                             @if ($item->status == 'pending')
                                                 <span class="badge badge-warning">Pending</span>
@@ -386,9 +385,22 @@
 
                                         <td>{{ $item->keterangan }}</td>
                                         <td>
-                                            <a href="{{ route('detail', $item->id) }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                            @if (Auth::user()->role == 4)
+                                                <a href="{{ route('detail', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('bensat.create', $item->id) }}"
+                                                    class="btn btn-success btn-sm">
+                                                    <i class="fas fa-notes-medical"></i>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('detail', ['id' => $item->id, 'from' => request()->path()]) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            @endif
+
                                         </td>
 
 
