@@ -94,7 +94,7 @@
                                                 @endif
                                                 <a href="{{ $url }}" target="_blank"
                                                     class="btn btn-outline-primary btn-sm mt-2 w-100">
-                                                    <i class="fas fa-download me-1"></i> Unduh
+                                                    <i class="fas fa-download me-1"></i> Lihat Dokumen
                                                 </a>
                                             </div>
                                         </div>

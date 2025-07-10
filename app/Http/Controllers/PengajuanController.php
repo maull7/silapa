@@ -52,9 +52,9 @@ class PengajuanController extends Controller
             'nilai_kontrak' => 'required|string|max:255',
             'nilai_ajuan' => 'required|string|max:255',
             'tanggal' => 'required|date',
-            'nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'rab' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'kwitansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
+            'nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'rab' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'kwitansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             // ... tambahkan validasi file lain sesuai kebutuhan
         ]);
 
@@ -204,25 +204,25 @@ class PengajuanController extends Controller
             'type' => 'required|string|max:100',
 
             // Validasi file (semua opsional / nullable)
-            'nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'rab' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'kwitansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'bukti_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'berita_acara' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'serah_terima' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'pembayaran' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'jaminan_garansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'jaminan_pelaksanaan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'keputusan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'surat_kontrak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'surat_perintah' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'dokumentasi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'faktur_pajak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'spp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'spm' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'ssp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'sp2d' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
-            'lain-lain' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10058',
+            'nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'rab' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'kwitansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'bukti_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'berita_acara' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'serah_terima' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'pembayaran' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'jaminan_garansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'jaminan_pelaksanaan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'keputusan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'surat_kontrak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'surat_perintah' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'dokumentasi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'faktur_pajak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'spp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'spm' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'ssp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'sp2d' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'lain-lain' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         $user = Auth::user();
@@ -556,11 +556,15 @@ class PengajuanController extends Controller
         $komentar = $request->input('komentar');
         $aksi = $request->input('aksi');
 
+        $notifDesc = '';
+        $teleUserIds = [];
+        $notifData = [];
+        $alreadyNotified = [];
 
-        // Perbaikan pada bagian backend
         if ($aksi == 'revisi') {
-            // Insert ke approvals
             $notifDesc = 'Pengajuan direvisi oleh ' . $currentUser->name;
+
+            // Insert ke approvals
             $idApproval = DB::table('approvals')->insertGetId([
                 'request_id' => $id,
                 'user_id' => $currentUser->id,
@@ -569,7 +573,6 @@ class PengajuanController extends Controller
                 'approved_at' => now(),
                 'created_at' => now(),
             ]);
-
 
             DB::table('request')->where('id', $id)->update([
                 'status' => 'revisi',
@@ -584,17 +587,15 @@ class PengajuanController extends Controller
                     if (isset($detail['checked']) && $detail['checked'] === 'on') {
                         $existing = DB::table('riwayat_revisi')
                             ->where('id_request', $id)
-                            ->where('id_upload', $fileId) // <- id dari request_uploads
+                            ->where('id_upload', $fileId)
                             ->first();
 
                         if ($existing) {
-                            DB::table('riwayat_revisi')
-                                ->where('id', $existing->id)
-                                ->update([
-                                    'comment' => $detail['komentar'] ?? '-',
-                                    'checked' => 1,
-                                    'updated_at' => now()
-                                ]);
+                            DB::table('riwayat_revisi')->where('id', $existing->id)->update([
+                                'comment' => $detail['komentar'] ?? '-',
+                                'checked' => 1,
+                                'updated_at' => now()
+                            ]);
                         } else {
                             DB::table('riwayat_revisi')->insert([
                                 'id_approvals' => $idApproval,
@@ -631,47 +632,60 @@ class PengajuanController extends Controller
             ]);
         }
 
+        // Ambil semua approvals sebelumnya
+        $approvals = DB::table('approvals')->where('request_id', $id)->get();
 
-
-
-        $approvals = DB::table('approvals')
-            ->where('request_id', $id)
-            ->get();
-
-        $notifData = [];
-        $teleUserIds = [];
-        $message = $notifDesc;
-
-        if (!$approvals->isEmpty()) {
-            $uniquePenerimaIds = $approvals->pluck('user_id')->unique();
-
-            foreach ($uniquePenerimaIds as $penerimaId) {
-                // Jangan kirim ke diri sendiri
-                if ($penerimaId != $currentUser->id) {
-                    $notifData[] = [
-                        'id_request'  => $id,
-                        'id_user'     => $currentUser->id, // pengirim
-                        'id_penerima' => $penerimaId,      // penerima
-                        'desc'        => $notifDesc,
-                        'status'      => 'unread',
-                        'created_at'  => now(),
-                    ];
-
-                    $teleUserIds[] = $penerimaId;
-                }
+        // Notif ke semua user approvals sebelumnya
+        foreach ($approvals as $item) {
+            if ($item->user_id != $currentUser->id && !in_array($item->user_id, $alreadyNotified)) {
+                $notifData[] = [
+                    'id_request' => $id,
+                    'id_user' => $currentUser->id,
+                    'id_penerima' => $item->user_id,
+                    'desc' => $notifDesc,
+                    'status' => 'unread',
+                    'created_at' => now(),
+                ];
+                $teleUserIds[] = $item->user_id;
+                $alreadyNotified[] = $item->user_id;
             }
         }
 
+        // Notif ke pemilik request
+        if (!in_array($data->user_id, $alreadyNotified)) {
+            $notifData[] = [
+                'id_request' => $id,
+                'id_user' => $currentUser->id,
+                'id_penerima' => $data->user_id,
+                'desc' => $notifDesc,
+                'status' => 'unread',
+                'created_at' => now(),
+            ];
+            $teleUserIds[] = $data->user_id;
+            $alreadyNotified[] = $data->user_id;
+        }
 
-        // Insert notifikasi sekaligus
-        DB::table('notif')->insert($notifData);
+        // Kirim notifikasi komentar ke pemilik
+        DB::table('notif')->insert([
+            'id_request' => $id,
+            'id_user' => $currentUser->id,
+            'id_penerima' => $data->user_id,
+            'desc' => $currentUser->name . ' telah mengomentari pengajuan Anda',
+            'status' => 'unread',
+            'created_at' => now(),
+        ]);
 
-        // Kirim Telegram ke semua pihak
-        $this->sendTelegram($message, array_unique($teleUserIds));
+        // Simpan notifikasi
+        if (!empty($notifData)) {
+            DB::table('notif')->insert($notifData);
+        }
 
+        // Kirim Telegram
+        $this->sendTelegram($notifDesc, array_unique($teleUserIds));
 
-        return redirect()->back()->with('success', 'Pengajuan berhasil ditolak.');
+        return redirect()->back()->with('success', 'Pengajuan berhasil ' . ($aksi == 'revisi' ? 'direvisi.' : 'ditolak.'));
     }
+
 
 
 

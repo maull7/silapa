@@ -35,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             if (auth()->check()) {
                 $userId = Auth::user()->id;
+                $role = Auth::user()->role;
+                $level = $role - 1;
 
                 // Notif untuk user sebagai penerima (misal: atasan)
                 $notifs = DB::table('notif')
@@ -44,11 +46,17 @@ class AppServiceProvider extends ServiceProvider
 
                 $notifCount = $notifs->count();
                 $verifyCount = DB::table('notif')
-                    ->leftJoin('request', 'request.user_id', '=', 'notif.id_penerima')
-                    ->whereNull('request.user_id') // berarti notif.id_penerima gak ditemukan di request.user_id
                     ->where('notif.status', 'unread')
-                    ->where('notif.id_penerima', $userId) // tetap filter sesuai user login
+                    ->where('notif.id_penerima', $userId)
+                    ->whereExists(function ($query) use ($userId) {
+                        $query->select(DB::raw(1))
+                            ->from('request')
+                            ->whereColumn('request.id', 'notif.id_request')
+                            ->where('request.user_id', '!=', $userId); // Artinya: request bukan milik dia
+                    })
                     ->count();
+
+
 
 
                 $PengajuCount = DB::table('notif')
@@ -57,9 +65,11 @@ class AppServiceProvider extends ServiceProvider
                     ->whereExists(function ($query) {
                         $query->select(DB::raw(1))
                             ->from('request')
-                            ->whereColumn('request.user_id', 'notif.id_penerima');
+                            ->whereColumn('request.id', 'notif.id_request') // Cocokkan ID request
+                            ->whereColumn('request.user_id', 'notif.id_penerima'); // Pastikan user sama
                     })
                     ->count();
+
 
 
 

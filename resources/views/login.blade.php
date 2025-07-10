@@ -377,7 +377,7 @@
                 <form action="{{ route('actionLogin') }}" method="post" name="login-form">
                     @csrf
                     <div class="input-group mb-4">
-                        <input type="text" class="form-control" name="nip" placeholder="NRP/NIP" required>
+                        <input type="text" class="form-control" name="nip" placeholder="Username" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-id-card"></span>

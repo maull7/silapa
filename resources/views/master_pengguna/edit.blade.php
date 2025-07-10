@@ -90,9 +90,9 @@
                                     </div>
 
                                     <div class="form-group d-none" id="walas-group">
-                                        <label for="wali_kelas">Pilih Kabag / Kasubag</label>
+                                        <label for="wali_kelas">Pilih Validator</label>
                                         <select name="id_parent" id="wali_kelas" class="form-control">
-                                            <option value="">Pilih Kabag / Kasubag</option>
+                                            <option value="">Pilih Validator</option>
                                             @foreach ($walas as $walasItem)
                                                 <option value="{{ $walasItem->id }}"
                                                     {{ isset($parentId) && $walasItem->id == $parentId ? 'selected' : '' }}>
