@@ -507,6 +507,23 @@ class PengajuanController extends Controller
                     $alreadyNotified[] = $user->id;
                 }
             }
+        } else {
+            $nextRoleUsers = DB::table('users')->where('role', $currentRole + 1)->get();
+
+            foreach ($nextRoleUsers as $user) {
+                if (!in_array($user->id, $alreadyNotified)) {
+                    $notifData[] = [
+                        'id_request' => $id,
+                        'id_user' => $currentUser->id,
+                        'id_penerima' => $user->id,
+                        'desc' => $notifDesc,
+                        'status' => 'unread',
+                        'created_at' => now(),
+                    ];
+                    $teleUserIds[] = $user->id;
+                    $alreadyNotified[] = $user->id;
+                }
+            }
         }
 
         // Simpan semua notifikasi
