@@ -98,8 +98,8 @@
             padding: 0.75rem 1rem;
             width: 100%;
             margin-top: 0.5rem;
-            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
-
+             background: linear-gradient(135deg, #d6b71a 0%, #c99700 100%);
+             color: #333;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
@@ -112,7 +112,7 @@
 
         .user-icon {
             font-size: 1.5rem;
-            color: white;
+            color: #333;
             margin-right: 10px;
         }
 
@@ -125,14 +125,14 @@
         .user-name {
             font-size: 0.9rem;
             font-weight: 600;
-            color: white;
+            color: #333;
             margin-bottom: 2px;
         }
 
         /* Role pengguna */
         .user-role {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(31, 29, 29, 0.8);
             font-weight: 400;
         }
 
@@ -177,14 +177,14 @@
             width: 100%;
             padding: 0.75rem;
             border-radius: 6px;
-            color: #358bdc;
+            color: #f9c000;
             background-color: rgba(220, 53, 69, 0.1);
             transition: all 0.3s ease;
             font-weight: 500;
         }
 
         .logout-button:hover {
-            background-color: #358bdc;
+            background-color: #f9c000;
             color: #fff;
             text-decoration: none;
             transform: translateY(-1px);
@@ -292,7 +292,7 @@
             bottom: 0;
             height: 2px;
             width: 0;
-            background-color: #358bdc;
+            background-color: #f9c000;
             transition: width 0.3s ease;
         }
 
@@ -301,13 +301,13 @@
         }
 
         .nav-sidebar .nav-link:not(.active):hover i {
-            color: #358bdc;
+            color: #f9c000;
             transform: scale(1.1);
             transition: all 0.3s ease;
         }
 
         .nav-sidebar .nav-link:not(.active):hover p {
-            color: #358bdc;
+            color: #f9c000;
             font-weight: 600;
             transition: all 0.3s ease;
         }
@@ -319,7 +319,7 @@
             bottom: 0;
             height: 2px;
             width: 0;
-            background-color: #358bdc;
+            background-color: #f9c000;
             transition: width 0.3s ease;
         }
 
@@ -333,7 +333,7 @@
         }
 
         .nav-sidebar .nav-link:hover i {
-            color: #358bdc;
+            color: #f9c000;
             transform: scale(1.1);
             transition: all 0.3s ease;
         }
@@ -345,8 +345,8 @@
         }
 
         .nav-sidebar .nav-link.active {
-            background-color: #358bdc;
-            color: #fff;
+            background-color: #f9c000;
+            color: #333;
             box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
         }
 
@@ -355,7 +355,7 @@
         }
 
         .nav-sidebar .nav-link.active i {
-            color: #fff;
+            color: #333;
         }
 
         /* Smooth transitions for all elements */
@@ -521,24 +521,24 @@
             </li>
 
             <li class="nav-item dropdown">
-                <a class="nav-link position-relative text-primary" data-toggle="dropdown" href="#"
+                <a class="nav-link position-relative text-warning" data-toggle="dropdown" href="#"
                     aria-expanded="false">
                     <i class="fas fa-bell fa-lg"></i>
                     @if ($notifCount > 0)
-                        <span class="badge badge-danger navbar-badge position-absolute" style="top: 0; right: 0;">
+                        <span class="badge badge-warning navbar-badge position-absolute" style="top: 0; right: 0;">
                             {{ $notifCount }}
                         </span>
                     @endif
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow notif-dropdown">
-                    <span class="dropdown-header text-primary font-weight-bold">
+                    <span class="dropdown-header text-warning font-weight-bold">
                         Notifikasi ({{ $notifCount }})
                     </span>
                     <div class="dropdown-divider"></div>
 
                     @forelse($notifs as $notif)
                         <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope text-primary mr-2"></i>
+                            <i class="fas fa-envelope text-warning mr-2"></i>
                             {{ Str::limit($notif->desc, 50) }}
                             <span class="float-right text-muted text-sm">
                                 {{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}
@@ -549,7 +549,7 @@
                     @endforelse
 
                     <div class="dropdown-divider"></div>
-                    <a href="{{ route('notif.read') }}" class="dropdown-item dropdown-footer text-primary">Lihat
+                    <a href="{{ route('notif.read') }}" class="dropdown-item dropdown-footer text-warning">Lihat
                         Tandai Telah DiBaca</a>
                 </div>
             </li>
@@ -567,7 +567,7 @@
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-light-primary elevation-2">
+    <aside class="main-sidebar sidebar-light-warning elevation-2">
         <!-- Brand Logo -->
         <div class="brand-link">
             <a href="#" class="brand">
@@ -619,7 +619,7 @@
                                     <i class="fas fa-tags position-relative">
                                         @if (isset($PengajuCount) && $PengajuCount > 0)
                                             <span class="position-absolute"
-                                                style="top: -3px; right: -6px; width: 8px; height: 8px; background-color: red; border-radius: 50%; border: 1px solid white;">
+                                                style="top: -3px; right: -6px; width: 8px; height: 8px; background-color: yellow; border-radius: 50%; border: 1px solid white;">
                                             </span>
                                         @endif
                                     </i>
@@ -646,14 +646,14 @@
                                             <i class="fas fa-inbox position-relative">
                                                 @if ($PengajuCount > 0)
                                                     <span
-                                                        class="position-absolute top-0 start-100 translate-middle p-1 bg-primary border border-light rounded-circle"
+                                                        class="position-absolute top-0 start-100 translate-middle p-1 bg-warning border border-light rounded-circle"
                                                         style="font-size: 0.6rem;"></span>
                                                 @endif
                                             </i>
                                             <p>
                                                 Permohonan & Riwayat
                                                 @if ($PengajuCount > 0)
-                                                    <span class="badge badge-danger ml-1">{{ $PengajuCount }}</span>
+                                                    <span class="badge badge-warning ml-1">{{ $PengajuCount }}</span>
                                                 @endif
                                             </p>
                                         </a>
@@ -671,14 +671,14 @@
                                         <i class="fas fa-check-circle position-relative">
                                             @if ($verifyCount > 0)
                                                 <span
-                                                    class="position-absolute top-0 start-100 translate-middle p-1 bg-primary border border-light rounded-circle"
+                                                    class="position-absolute top-0 start-100 translate-middle p-1 bg-warning border border-light rounded-circle"
                                                     style="font-size: 0.6rem;"></span>
                                             @endif
                                         </i>
                                         <p>
                                             Verifikasi Pengajuan
                                             @if ($verifyCount > 0)
-                                                <span class="badge badge-danger ml-1">{{ $verifyCount }}</span>
+                                                <span class="badge badge-warning ml-1">{{ $verifyCount }}</span>
                                             @endif
                                         </p>
                                     </a>

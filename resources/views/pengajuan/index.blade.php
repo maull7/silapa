@@ -337,7 +337,7 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Tombol Tambah User -->
-                <a href="/ajukan-pengajuan" class="btn btn-primary mb-3">
+                <a href="/ajukan-pengajuan" class="btn btn-warning mb-3">
                     Ajukan Pengajuan
                 </a>
                 <!-- Tombol Ekspor -->

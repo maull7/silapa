@@ -337,7 +337,7 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Tombol Tambah User -->
-                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#tambahUser">
+                <button type="button" class="btn btn-warning mb-3" data-toggle="modal" data-target="#tambahUser">
                     Tambah Admin
                 </button>
                 <!-- Tombol Ekspor -->

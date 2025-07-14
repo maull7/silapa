@@ -56,13 +56,13 @@
 
         /* Header styling */
         .card-header {
-            background: linear-gradient(135deg, #64b5f6 0%, #1565c0 100%);
+           background: linear-gradient(135deg, #f6e27a 0%, #c99700 100%);
             color: white;
             border-bottom: none;
             padding: 25px 20px 70px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(183, 28, 28, 0.3);
+            box-shadow: 0 4px 8px rgba(183, 181, 28, 0.3);
         }
 
 
@@ -121,8 +121,8 @@
         }
 
         .form-control:focus {
-            border-color: #1565c0;
-            box-shadow: 0 0 0 0.2rem rgba(78, 141, 223, 0.25);
+            border-color: #ffdd57;
+            box-shadow: 0 0 0 0.2rem rgba(223, 221, 78, 0.25);
         }
 
         .input-group-text {
@@ -130,12 +130,12 @@
             background-color: #f8f9fc;
             border: 1px solid #d1d3e2;
             border-left: none;
-            color: #1565c0;
+            color: #ffdd57;
         }
 
         /* Button styling matching dashboard */
         .btn-primary {
-            background: linear-gradient(135deg, #356de5 0%, #1c2cb7 100%);
+            background: linear-gradient(135deg, #f7cf2f 0%, #b9b031 100%);
             border: none;
             border-radius: 10px;
             padding: 12px;
@@ -146,7 +146,7 @@
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #0017e9 0%, #2780d3 100%);
+            background: linear-gradient(135deg, #e9d600 0%, #939125 100%);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(223, 78, 78, 0.25);
         }
@@ -204,7 +204,7 @@
         }
 
         .password-toggle:hover {
-            color: #2246be;
+            color: #c99700;
         }
 
         /* Modal styling */

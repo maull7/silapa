@@ -27,6 +27,15 @@
                                 </button>
                             </div>
                         @endif
+                         @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
                         <form action="{{ route('bensat.store', $request->id) }}" method="POST"
                             enctype="multipart/form-data" id="pengajuanForm">
@@ -120,7 +129,7 @@
                                 <a href="{{ route('pengajuan.index') }}" class="btn btn-secondary mr-2">
                                     <i class="fas fa-arrow-left"></i> Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <button type="submit" class="btn btn-warning" id="submitBtn">
                                     <i class="fas fa-save"></i> Simpan Pengajuan
                                 </button>
                             </div>

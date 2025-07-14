@@ -24,7 +24,7 @@
 
         <section class="content">
             <div class="container-fluid">
-                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#tambahJurusanModal">
+                <button type="button" class="btn btn-warning mb-3" data-toggle="modal" data-target="#tambahJurusanModal">
                     Tambah Jabatan
                 </button>
                 <!-- Tombol Ekspor -->

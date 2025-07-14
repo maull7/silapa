@@ -27,6 +27,15 @@
                                 </button>
                             </div>
                         @endif
+                        @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
                         <form action="{{ route('pengajuan.store') }}" method="POST" enctype="multipart/form-data"
                             id="pengajuanForm">
@@ -55,9 +64,9 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label for="nilai_kontrak" class="form-label">Nilai Kontrak/Pengadaan</label>
+                                    <label for="nilai_kontrak" class="form-label ">Nilai Kontrak/Pengadaan</label>
                                     <input type="text" name="nilai_kontrak"
-                                        class="form-control @error('nilai_kontrak') is-invalid @enderror"
+                                        class="form-control format-ribuan @error('nilai_kontrak') is-invalid @enderror"
                                         value="{{ old('nilai_kontrak') }}" required>
                                     @error('nilai_kontrak')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -65,9 +74,9 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label for="nilai_ajuan" class="form-label">Nilai Pengajuan Pembayaran</label>
+                                    <label for="nilai_ajuan" class="form-label ">Nilai Pengajuan Pembayaran</label>
                                     <input type="text" name="nilai_ajuan"
-                                        class="form-control @error('nilai_ajuan') is-invalid @enderror"
+                                        class="form-control format-ribuan @error('nilai_ajuan') is-invalid @enderror"
                                         value="{{ old('nilai_ajuan') }}" required>
                                     @error('nilai_ajuan')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -103,14 +112,7 @@
 
                             <!-- File Upload Section -->
                             <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5>Upload Dokumen</h5>
-                                    <small class="text-muted">Silakan upload dokumen satu per satu</small>
-                                    <div class="progress mt-2" style="height: 10px;">
-                                        <div class="progress-bar" id="uploadProgress" role="progressbar" style="width: 0%">
-                                        </div>
-                                    </div>
-                                </div>
+                                
                                 <div class="card-body">
                                     <div id="fileUploadSteps">
                                         <!-- Steps will be added dynamically by JavaScript -->
@@ -120,7 +122,7 @@
                                         <button type="button" class="btn btn-secondary" id="prevStepBtn" disabled>
                                             <i class="fas fa-arrow-left"></i> Sebelumnya
                                         </button>
-                                        <button type="button" class="btn btn-primary" id="nextStepBtn">
+                                        <button type="button" class="btn btn-warning" id="nextStepBtn">
                                             Selanjutnya <i class="fas fa-arrow-right"></i>
                                         </button>
                                     </div>
@@ -164,7 +166,7 @@
                                 <a href="{{ route('pengajuan.index') }}" class="btn btn-secondary mr-2">
                                     <i class="fas fa-arrow-left"></i> Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                <button type="submit" class="btn btn-warning" id="submitBtn">
                                     <i class="fas fa-save"></i> Simpan Pengajuan
                                 </button>
                             </div>
@@ -231,115 +233,115 @@
             const fileSteps = [{
                     id: 'nota',
                     label: 'Nota Dinas dan Disposisi KPA',
-                    required: true,
+                    required: false,
                     description: 'Upload Nota Dinas dan Disposisi KPA dalam format PDF'
                 },
                 {
                     id: 'rab',
                     label: 'RAB',
-                    required: true,
+                    required: false,
                     description: 'Upload Rencana Anggaran Biaya (RAB)'
                 },
                 {
                     id: 'kwitansi',
                     label: 'Kwitansi Bukti Pembayaran',
-                    required: true,
+                    required: false,
                     description: 'Upload kwitansi sebagai bukti pembayaran'
                 },
                 {
                     id: 'bukti_nota',
                     label: 'Faktur atau Nota Bukti Pembelian',
-                    required: true,
+                    required: false,
                     description: 'Upload faktur atau nota pembelian'
                 },
                 {
                     id: 'berita_acara',
                     label: 'Berita Acara Penyelesaian Pekerjaan',
-                    required: true,
+                    required: false,
                     description: 'Upload berita acara penyelesaian pekerjaan'
                 },
                 {
                     id: 'serah_terima',
                     label: 'Berita Acara Serah Terima Pekerjaan',
-                    required: true,
+                    required: false,
                     description: 'Upload berita acara serah terima pekerjaan'
                 },
                 {
                     id: 'pembayaran',
                     label: 'Berita Acara Pembayaran',
-                    required: true,
+                    required: false,
                     description: 'Upload berita acara pembayaran (jika ada)'
                 },
                 {
                     id: 'jaminan_garansi',
                     label: 'Jaminan Bank Garansi Uang Muka',
-                    required: true,
+                    required: false,
                     description: 'Upload jaminan bank garansi uang muka (jika ada)'
                 },
                 {
                     id: 'jaminan_pelaksanaan',
                     label: 'Jaminan Bank Garansi Pelaksanaan',
-                    required: true,
+                    required: false,
                     description: 'Upload jaminan bank garansi pelaksanaan (jika ada)'
                 },
                 {
                     id: 'keputusan',
                     label: 'Keputusan Penetapan Pemenang',
-                    required: true,
+                    required: false,
                     description: 'Upload keputusan penetapan pemenang (jika ada)'
                 },
                 {
                     id: 'surat_kontrak',
                     label: 'Surat Kontrak atau Surat Pesanan',
-                    required: true,
+                    required: false,
                     description: 'Upload surat kontrak atau surat pesanan'
                 },
                 {
                     id: 'surat_perintah',
                     label: 'Surat Perintah Kerja',
-                    required: true,
+                    required: false,
                     description: 'Upload surat perintah kerja (jika ada)'
                 },
                 {
                     id: 'dokumentasi',
                     label: 'Dokumentasi Kegiatan/Pembelian',
-                    required: true,
+                    required: false,
                     description: 'Upload dokumentasi kegiatan atau pembelian (jika ada)'
                 },
                 {
                     id: 'faktur_pajak',
                     label: 'Faktur Pajak',
-                    required: true,
+                    required: false,
                     description: 'Upload faktur pajak (jika ada)'
                 },
                 {
                     id: 'spp',
                     label: 'SPP',
-                    required: true,
+                    required: false,
                     description: 'Upload SPP (jika ada)'
                 },
                 {
                     id: 'spm',
                     label: 'SPM',
-                    required: true,
+                    required: false,
                     description: 'Upload SPM (jika ada)'
                 },
                 {
                     id: 'ssp',
                     label: 'SSP',
-                    required: true,
+                    required: false,
                     description: 'Upload SSP (jika ada)'
                 },
                 {
                     id: 'sp2d',
                     label: 'SP2D',
-                    required: true,
+                    required: false,
                     description: 'Upload SP2D (jika ada)'
                 },
                 {
                     id: 'lain-lain',
                     label: 'Dokumen lainnya',
-                    required: true,
+                    required: false,
                     description: 'Upload dokumen lain yang diperlukan'
                 },
             ];
@@ -363,7 +365,7 @@
 
                     stepElement.innerHTML = `
                 <div class="mb-3">
-                    <label class="form-label">${step.label} ${step.required ? '<span class="text-primary">*</span>' : ''}</label>
+                    <label class="form-label">${step.label} ${step.required ? '<span class="text-warning">*</span>' : ''}</label>
                     <p class="text-muted small">${step.description}</p>
                     <div class="input-group">
                         <input type="text" class="form-control step-file-display" id="${step.id}Display" readonly>
@@ -400,7 +402,7 @@
             <div class="alert alert-success p-2">
                 <i class="fas fa-check-circle me-2"></i>
                 ${file.name} (${formatFileSize(file.size)})
-                <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="window.removeUploadedFile('${stepId}')">
+                <button type="button" class="btn btn-sm btn-outline-warning ms-2" onclick="window.removeUploadedFile('${stepId}')">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -432,10 +434,10 @@
 
                 if (currentStep === fileSteps.length - 1) {
                     nextStepBtn.innerHTML = 'Selesai <i class="fas fa-check"></i>';
-                    nextStepBtn.classList.replace('btn-primary', 'btn-success');
+                    nextStepBtn.classList.replace('btn-warning', 'btn-success');
                 } else {
                     nextStepBtn.innerHTML = 'Selanjutnya <i class="fas fa-arrow-right"></i>';
-                    nextStepBtn.classList.replace('btn-success', 'btn-primary');
+                    nextStepBtn.classList.replace('btn-success', 'btn-warning');
                 }
             }
 
@@ -478,4 +480,18 @@
             initSteps();
         })();
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('.format-ribuan');
+
+        inputs.forEach(function (input) {
+            input.addEventListener('input', function () {
+                let value = input.value.replace(/\./g, ''); // hapus semua titik
+                if (!isNaN(value)) {
+                    input.value = new Intl.NumberFormat('id-ID').format(value);
+                }
+            });
+        });
+    });
+</script>
 @endsection

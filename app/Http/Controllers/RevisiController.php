@@ -60,6 +60,56 @@ class RevisiController extends Controller
 
     public function revisiStore(Request $request)
     {
+
+        $request->validate([
+    'nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'rab' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'kwitansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'bukti_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'berita_acara' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'serah_terima' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'pembayaran' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'jaminan_garansi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'jaminan_pelaksanaan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'keputusan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'surat_kontrak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'surat_perintah' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'dokumentasi' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'faktur_pajak' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'spp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'spm' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'ssp' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'sp2d' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+    'lain-lain' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+], [
+    // Pesan Bahasa Indonesia
+    'required' => ':attribute wajib diisi.',
+    'string' => ':attribute harus berupa teks.',
+    'max' => ':attribute tidak boleh lebih dari :max karakter.',
+    'file' => ':attribute harus berupa file.',
+    'mimes' => ':attribute harus berupa file dengan format: :values.',
+    'date' => ':attribute harus berupa tanggal yang valid.',
+    'nota.max' => 'Ukuran file Nota tidak boleh lebih dari 10MB.',
+    'rab.max' => 'Ukuran file RAB tidak boleh lebih dari 10MB.',
+    'kwitansi.max' => 'Ukuran file Kwitansi tidak boleh lebih dari 10MB.',
+    'bukti_nota.max' => 'Ukuran file Bukti Nota tidak boleh lebih dari 10MB.',
+    'berita_acara.max' => 'Ukuran file Berita Acara tidak boleh lebih dari 10MB.',
+    'serah_terima.max' => 'Ukuran file Serah Terima tidak boleh lebih dari 10MB.',
+    'pembayaran.max' => 'Ukuran file Pembayaran tidak boleh lebih dari 10MB.',
+    'jaminan_garansi.max' => 'Ukuran file Jaminan Garansi tidak boleh lebih dari 10MB.',
+    'jaminan_pelaksanaan.max' => 'Ukuran file Jaminan Pelaksanaan tidak boleh lebih dari 10MB.',
+    'keputusan.max' => 'Ukuran file Keputusan tidak boleh lebih dari 10MB.',
+    'surat_kontrak.max' => 'Ukuran file Surat Kontrak tidak boleh lebih dari 10MB.',
+    'surat_perintah.max' => 'Ukuran file Surat Perintah tidak boleh lebih dari 10MB.',
+    'dokumentasi.max' => 'Ukuran file Dokumentasi tidak boleh lebih dari 10MB.',
+    'faktur_pajak.max' => 'Ukuran file Faktur Pajak tidak boleh lebih dari 10MB.',
+    'spp.max' => 'Ukuran file SPP tidak boleh lebih dari 10MB.',
+    'spm.max' => 'Ukuran file SPM tidak boleh lebih dari 10MB.',
+    'ssp.max' => 'Ukuran file SSP tidak boleh lebih dari 10MB.',
+    'sp2d.max' => 'Ukuran file SP2D tidak boleh lebih dari 10MB.',
+    'lain-lain.max' => 'Ukuran file Lain-lain tidak boleh lebih dari 10MB.',
+]);
+
         $currentUser = Auth::user();
         $requestId = $request->input('id');
         $requestData = DB::table('request')->where('id', $requestId)->first();

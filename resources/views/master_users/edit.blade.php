@@ -70,7 +70,7 @@
                             </div>
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
                                 <a href="{{ route('master_user.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>

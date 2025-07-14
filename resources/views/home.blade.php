@@ -31,7 +31,7 @@
             border-radius: 10px;
         }
 
-        .bg-primary-light {
+        .bg-warning-light {
             background-color: rgba(78, 115, 223, 0.1);
         }
 
@@ -110,7 +110,7 @@
             <ol class="carousel-indicators">
                 <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
                 <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+               
             </ol>
 
             <!-- Gambar -->
@@ -123,10 +123,7 @@
                     <img class="d-block w-100" src="{{ url('img/carousel/bg2.jpg') }}" alt="Slide 2"
                         style="height: 200px; object-fit: cover;">
                 </div>
-                <div class="carousel-item">
-                    <img class="d-block w-100" src="{{ url('img/carousel/bg3.jpg') }}" alt="Slide 3"
-                        style="height: 200px; object-fit: contain; background-color: #f0f0f0;">
-                </div>
+                
             </div>
 
             <!-- Tombol Panah -->
@@ -144,7 +141,7 @@
             <div class="container-fluid">
                 <div class="row align-items-center mb-4">
                     <div class="col-sm-6">
-                        <h1 class="m-0 font-weight-bold text-primary">Dashboard</h1>
+                        <h1 class="m-0 font-weight-bold text-warning">Dashboard</h1>
                     </div>
                     <div class="col-sm-6">
                         <div class="float-right text-muted">
@@ -160,10 +157,10 @@
                 <!-- Welcome Card -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="card bg-gradient-primary text-white overflow-hidden shadow-lg">
+                        <div class="card bg-gradient-warning text-white overflow-hidden shadow-lg">
                             <div class="card-body d-flex align-items-center p-4">
                                 <div class="mr-4">
-                                    <div class="avatar bg-white text-primary rounded-circle p-3 shadow-sm">
+                                    <div class="avatar bg-white text-warning rounded-circle p-3 shadow-sm">
                                         <i class="fas fa-user fa-2x"></i>
                                     </div>
                                 </div>
@@ -209,7 +206,7 @@
                     </div>
                 </div>
 
-                <!-- Primary Stats -->
+                <!-- warning Stats -->
                 <div class="row">
 
                     @php

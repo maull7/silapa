@@ -13,11 +13,21 @@
             </div>
         </div>
 
+
         <!-- Content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="card shadow-sm">
                     <div class="card-body">
+                        @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         <form action="{{ route('pengajuan.update', $request->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
@@ -48,7 +58,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="nilai_kontrak" class="form-label">Nilai Kontrak/Pengadaan</label>
                                     <input type="text" name="nilai_kontrak"
-                                        class="form-control @error('nilai_kontrak') is-invalid @enderror"
+                                        class="form-control format-ribuan @error('nilai_kontrak') is-invalid @enderror"
                                         value="{{ old('nilai_kontrak', $request->nilai_kontrak) }}" required>
                                     @error('nilai_kontrak')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -58,7 +68,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="nilai_ajuan" class="form-label">Nilai Pengajuan Pembayaran</label>
                                     <input type="text" name="nilai_ajuan"
-                                        class="form-control @error('nilai_ajuan') is-invalid @enderror"
+                                        class="form-control format-ribuan @error('nilai_ajuan') is-invalid @enderror"
                                         value="{{ old('nilai_ajuan', $request->nilai_ajuan) }}" required>
                                     @error('nilai_ajuan')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -104,10 +114,7 @@
                                     <small class="text-muted">Silakan upload dokumen satu per satu</small>
                                 </div>
                                 <div class="card-body">
-                                    <div class="progress mb-3" style="height: 10px;">
-                                        <div id="uploadProgress" class="progress-bar" role="progressbar" style="width: 0%">
-                                        </div>
-                                    </div>
+                                    
 
                                     <div id="editFileSteps" class="mb-4"></div>
                                     <div id="hiddenFileInputs" class="d-none"></div>
@@ -116,7 +123,7 @@
                                         <button type="button" id="prevStepBtn" class="btn btn-secondary" disabled>
                                             <i class="fas fa-arrow-left me-1"></i> Sebelumnya
                                         </button>
-                                        <button type="button" id="nextStepBtn" class="btn btn-primary">
+                                        <button type="button" id="nextStepBtn" class="btn btn-warning">
                                             Selanjutnya <i class="fas fa-arrow-right ms-1"></i>
                                         </button>
                                     </div>
@@ -128,7 +135,7 @@
                                 <a href="{{ route('pengajuan.index') }}" class="btn btn-secondary mr-2">
                                     <i class="fas fa-times"></i> Batal
                                 </a>
-                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <button type="submit" class="btn btn-warning" id="submitBtn">
                                     <i class="fas fa-save me-1"></i> Perbarui Data
                                 </button>
                             </div>
@@ -165,32 +172,32 @@
             const fileSteps = [{
                     id: 'nota',
                     label: 'Nota Dinas dan Disposisi KPA',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'rab',
                     label: 'RAB',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'kwitansi',
                     label: 'Kwitansi Bukti Pembayaran',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'bukti_nota',
                     label: 'Faktur / Nota Bukti Pembelian',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'berita_acara',
                     label: 'Berita Acara Penyelesaian Pekerjaan',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'serah_terima',
                     label: 'Berita Acara Serah Terima Pekerjaan',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'pembayaran',
@@ -215,7 +222,7 @@
                 {
                     id: 'surat_kontrak',
                     label: 'Surat Kontrak / Pesanan',
-                    required: true
+                    required: false
                 },
                 {
                     id: 'surat_perintah',
@@ -302,12 +309,12 @@
 
                 if (currentStep === fileSteps.length - 1) {
                     nextBtn.innerHTML = '<i class="fas fa-check me-1"></i> Selesai';
-                    nextBtn.classList.remove('btn-primary');
+                    nextBtn.classList.remove('btn-warning');
                     nextBtn.classList.add('btn-success');
                 } else {
                     nextBtn.innerHTML = 'Selanjutnya <i class="fas fa-arrow-right ms-1"></i>';
                     nextBtn.classList.remove('btn-success');
-                    nextBtn.classList.add('btn-primary');
+                    nextBtn.classList.add('btn-warning');
                 }
             }
 
@@ -315,7 +322,7 @@
                 delete uploadedFiles[id];
                 document.getElementById(id + 'Display').value = '';
                 document.getElementById(id + 'Preview').innerHTML = oldFiles[id] ?
-                    `<a href="/storage/${oldFiles[id]}" target="_blank" class="badge bg-primary me-2">Lihat File</a>` :
+                    `<a href="/request_uploads/${oldFiles[id]}" target="_blank" class="badge bg-warning me-2">Lihat File</a>` :
                     '';
                 document.getElementById(id + 'Input').value = '';
                 updateProgress();
@@ -330,7 +337,7 @@
 
                     // Create file preview if exists
                     const existingFile = oldFiles[step.id] ?
-                        `<a href="/storage/${oldFiles[step.id]}" target="_blank" class="badge bg-primary me-2">
+                        `<a href="/request_uploads/${oldFiles[step.id]}" target="_blank" class="badge bg-warning me-2">
                     <i class="fas fa-file me-1"></i> Lihat File
                 </a>` : '';
 
@@ -343,7 +350,7 @@
                     <div class="input-group">
                         <input type="text" id="${step.id}Display" class="form-control" 
                                value="${oldFiles[step.id] ? oldFiles[step.id].split('/').pop() : ''}" readonly>
-                        <button type="button" class="btn btn-outline-primary" id="${step.id}Btn">
+                        <button type="button" class="btn btn-outline-warning" id="${step.id}Btn">
                             <i class="fas fa-upload me-1"></i> ${oldFiles[step.id] ? 'Ganti' : 'Pilih'} File
                         </button>
                     </div>
@@ -405,4 +412,37 @@
             updateProgress();
         })();
     </script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('.format-ribuan');
+
+        function formatRibuan(angka) {
+            angka = angka.replace(/\./g, '');
+            if (!isNaN(angka)) {
+                return new Intl.NumberFormat('id-ID').format(angka);
+            }
+            return angka;
+        }
+
+        inputs.forEach(function (input) {
+            // Format langsung saat halaman dimuat (jika ada value)
+            if (input.value) {
+                input.value = formatRibuan(input.value);
+            }
+
+            // Format saat user mengetik
+            input.addEventListener('input', function () {
+                let posisiKursor = input.selectionStart;
+                let value = input.value.replace(/\./g, '');
+
+                if (!isNaN(value)) {
+                    input.value = formatRibuan(value);
+                    // (Opsional) Kembalikan posisi kursor ke akhir agar user nyaman
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            });
+        });
+    });
+</script>
+
 @endsection

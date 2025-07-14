@@ -24,7 +24,12 @@ class BerkasBensatController extends Controller
         $request->validate([
             'upload_1' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'upload_2' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-        ]);
+        ],
+        [
+            'upload_1.max' => 'Ukuran file tidak boleh lebih dari 10MB.',
+            'upload_2.max' => 'Ukuran file tidak boleh lebih dari 10MB.',
+        ]
+        );
 
         $existing = DB::table('berkas_bensat')->where('id_request', $id)->first();
 
